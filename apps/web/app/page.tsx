@@ -168,7 +168,7 @@ export default function HomePage() {
             </span>
           </h1>
           <p className="mt-5 max-w-xl text-sm leading-relaxed text-muted sm:text-base">
-            Wallet Doctor is a research-grade toolkit for Monad: deep history
+            MonDoc is a research-grade toolkit for Monad: deep history
             approval scans, one-click revoke, onchain cleanup logs, and a
             soulbound health badge — without ever custodizing funds.
           </p>

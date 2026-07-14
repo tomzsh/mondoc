@@ -3,16 +3,39 @@
   "source": "therealharpaljadeja/monskills",
   "syncedAt": "2026-07-14T04:18:06Z",
   "skills": {
-    "monskill": { "path": ".agents/skills/monskill" },
-    "scaffold": { "path": ".agents/skills/scaffold" },
-    "why-monad": { "path": ".agents/skills/why-monad" },
-    "concepts": { "path": ".agents/skills/concepts" },
-    "addresses": { "path": ".agents/skills/addresses" },
-    "wallet": { "path": ".agents/skills/wallet" },
-    "wallet-integration": { "path": ".agents/skills/wallet-integration" },
-    "gas": { "path": ".agents/skills/gas" },
-    "tooling-and-infra": { "path": ".agents/skills/tooling-and-infra" },
-    "indexer": { "path": ".agents/skills/indexer" },
-    "wallet-doctor": { "path": ".agents/skills/wallet-doctor", "project": true }
+    "monskill": {
+      "path": ".agents/skills/monskill"
+    },
+    "scaffold": {
+      "path": ".agents/skills/scaffold"
+    },
+    "why-monad": {
+      "path": ".agents/skills/why-monad"
+    },
+    "concepts": {
+      "path": ".agents/skills/concepts"
+    },
+    "addresses": {
+      "path": ".agents/skills/addresses"
+    },
+    "wallet": {
+      "path": ".agents/skills/wallet"
+    },
+    "wallet-integration": {
+      "path": ".agents/skills/wallet-integration"
+    },
+    "gas": {
+      "path": ".agents/skills/gas"
+    },
+    "tooling-and-infra": {
+      "path": ".agents/skills/tooling-and-infra"
+    },
+    "indexer": {
+      "path": ".agents/skills/indexer"
+    },
+    "mondoc": {
+      "path": ".agents/skills/mondoc",
+      "project": true
+    }
   }
 }

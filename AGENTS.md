@@ -1,4 +1,4 @@
-# AGENTS.md — Wallet Doctor (Monad)
+# AGENTS.md — MonDoc (Monad)
 
 Instructions for any coding agent working in this repository.
 
@@ -25,7 +25,7 @@ Instructions for any coding agent working in this repository.
 
 ### Project-specific skill
 
-Also read **[`.agents/skills/wallet-doctor/SKILL.md`](.agents/skills/wallet-doctor/SKILL.md)** for this app’s layout, contracts, and non-negotiables.
+Also read **[`.agents/skills/mondoc/SKILL.md`](.agents/skills/mondoc/SKILL.md)** for this app’s layout, contracts, and non-negotiables.
 
 ## 2. Repository map
 
@@ -38,7 +38,7 @@ apps/web                 Next.js 14 App Router · wagmi · RainbowKit · viem
   lib/contracts/         ABIs + env-wired addresses
 packages/contracts       Foundry · WalletDoctorLog · WalletDoctorBadge · mocks
 scripts/                 deploy-testnet.sh · seed-test-approvals.sh · sync-monskills.sh
-.agents/skills/          MONSKILLS (local) + wallet-doctor skill
+.agents/skills/          MONSKILLS (local) + mondoc skill
 ```
 
 ## 3. Networks (do not confuse)
@@ -51,7 +51,7 @@ scripts/                 deploy-testnet.sh · seed-test-approvals.sh · sync-mon
 
 **Never** return a mainnet address when the user is on testnet (and vice versa). If unsure, ask.
 
-### Deployed Wallet Doctor (testnet · v2)
+### Deployed MonDoc (testnet · v2)
 
 Source of truth: `packages/contracts/deployments.testnet.json` + `apps/web/.env.local` (not committed).
 
@@ -101,7 +101,7 @@ pnpm skills:sync
 # or: bash scripts/sync-monskills.sh
 ```
 
-Keeps `.agents/skills/{monskill,scaffold,...}` aligned with [therealharpaljadeja/monskills](https://github.com/therealharpaljadeja/monskills). Does **not** overwrite `.agents/skills/wallet-doctor/`.
+Keeps `.agents/skills/{monskill,scaffold,...}` aligned with [therealharpaljadeja/monskills](https://github.com/therealharpaljadeja/monskills). Does **not** overwrite `.agents/skills/mondoc/`.
 
 ## 8. After code changes
 

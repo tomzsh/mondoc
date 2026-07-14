@@ -1,8 +1,8 @@
 {
-  "name": "monad-wallet-doctor",
+  "name": "mondoc",
   "private": true,
   "version": "0.1.0",
-  "description": "Check Monad wallet health, revoke risky approvals, log cleanups onchain, earn a soulbound badge.",
+  "description": "MonDoc — clinical wallet diagnostics on Monad: scan, revoke, log, soulbound badge.",
   "scripts": {
     "dev": "pnpm --filter web dev",
     "build": "pnpm --filter web build",

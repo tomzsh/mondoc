@@ -21,7 +21,7 @@ interface ThemeContextValue {
 
 const ThemeContext = createContext<ThemeContextValue | null>(null);
 
-const STORAGE_KEY = "wallet-doctor-theme";
+const STORAGE_KEY = "mondoc-theme";
 
 function applyTheme(theme: Theme) {
   const root = document.documentElement;

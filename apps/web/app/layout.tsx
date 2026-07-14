@@ -18,11 +18,11 @@ const mono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Wallet Doctor — Monad",
+  title: "MonDoc — Monad Wallet Diagnostics",
   description:
-    "Clinical wallet diagnostics for Monad. Scan approvals, revoke risk, log cleanups onchain, earn a soulbound badge.",
+    "MonDoc: clinical wallet diagnostics for Monad. Scan approvals, revoke risk, log cleanups onchain, earn a soulbound badge.",
   openGraph: {
-    title: "Wallet Doctor — Monad",
+    title: "MonDoc — Monad",
     description:
       "Research-grade approval scanning, one-click revoke, onchain cleanup proof.",
   },
@@ -46,7 +46,7 @@ export const viewport: Viewport = {
 const themeInitScript = `
 (function(){
   try {
-    var k = 'wallet-doctor-theme';
+    var k = 'mondoc-theme';
     var s = localStorage.getItem(k);
     var d = window.matchMedia('(prefers-color-scheme: dark)').matches;
     // default dark when no preference stored (lab aesthetic)

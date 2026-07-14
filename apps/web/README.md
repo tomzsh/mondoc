@@ -1,6 +1,6 @@
-# Wallet Doctor — Web App
+# MonDoc — Web App
 
-Next.js 14 (App Router) frontend for **Monad Wallet Doctor**.
+Next.js 14 (App Router) frontend for **Monad MonDoc**.
 
 ## Stack
 

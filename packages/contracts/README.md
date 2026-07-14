@@ -1,4 +1,4 @@
-# Wallet Doctor Contracts (Foundry)
+# MonDoc Contracts (Foundry)
 
 - `WalletDoctorLog` — onchain cleanup history + score (self-reported by the calling wallet)
 - `WalletDoctorBadge` — soulbound ERC-721 minted when score ≥ 80

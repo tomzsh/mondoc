@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Sync local MONSKILLS into .agents/skills/ from the official monorepo.
-# Does not overwrite .agents/skills/wallet-doctor/ (project skill).
+# Does not overwrite .agents/skills/mondoc/ (project skill).
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -32,7 +32,7 @@ mkdir -p "$DEST"
 mkdir -p "$DEST/monskill"
 cp -a "$TMP/SKILL.md" "$DEST/monskill/SKILL.md"
 
-# Prefer committed project router if present (has relative paths + wallet-doctor)
+# Prefer committed project router if present (has relative paths + mondoc)
 if [[ -f "$ROOT/.agents/skills/monskill/SKILL.md.project" ]]; then
   cp -a "$ROOT/.agents/skills/monskill/SKILL.md.project" "$DEST/monskill/SKILL.md"
   echo "  using monskill/SKILL.md.project"
@@ -43,10 +43,10 @@ path = sys.argv[1]
 text = open(path).read()
 text2 = re.sub(r"\]\(/([a-z0-9-]+)/SKILL\.md\)", r"](../\1/SKILL.md)", text)
 text2 = re.sub(r"`([a-z0-9-]+)/`", r"`../\1/`", text2)
-if "wallet-doctor" not in text2:
+if "mondoc" not in text2:
     text2 = text2.replace(
         "building on Monad (mainnet and testnet).",
-        "building on Monad (mainnet and testnet).\n\n**Repo:** Also open `../wallet-doctor/SKILL.md` and root `AGENTS.md`.\n",
+        "building on Monad (mainnet and testnet).\n\n**Repo:** Also open `../mondoc/SKILL.md` and root `AGENTS.md`.\n",
         1,
     )
 open(path, "w").write(text2)
@@ -67,8 +67,8 @@ for topic in "${TOPICS[@]}"; do
 done
 
 # Preserve project skill
-if [[ ! -f "$DEST/wallet-doctor/SKILL.md" ]]; then
-  echo "WARN: wallet-doctor project skill missing — restore from git" >&2
+if [[ ! -f "$DEST/mondoc/SKILL.md" ]]; then
+  echo "WARN: mondoc project skill missing — restore from git" >&2
 fi
 
 # Update skills-lock stub
@@ -88,7 +88,7 @@ cat > "$ROOT/skills-lock.json" <<EOF
     "gas": { "path": ".agents/skills/gas" },
     "tooling-and-infra": { "path": ".agents/skills/tooling-and-infra" },
     "indexer": { "path": ".agents/skills/indexer" },
-    "wallet-doctor": { "path": ".agents/skills/wallet-doctor", "project": true }
+    "mondoc": { "path": ".agents/skills/mondoc", "project": true }
   }
 }
 EOF

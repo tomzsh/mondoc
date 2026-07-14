@@ -34,7 +34,7 @@ export function ChainGuard({ children }: { children: ReactNode }) {
       <div className="ui-card border-warning/30 bg-warning/5 px-4 py-10 text-center sm:px-8">
         <h2 className="text-xl font-semibold tracking-tight">Unsupported network</h2>
         <p className="mx-auto mt-2 max-w-md text-sm text-muted">
-          Wallet Doctor only runs on Monad. Switch network to continue.
+          MonDoc only runs on Monad. Switch network to continue.
         </p>
         <div className="mt-6 flex flex-col gap-2 sm:flex-row sm:justify-center">
           <button

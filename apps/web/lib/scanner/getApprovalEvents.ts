@@ -39,6 +39,7 @@ import {
   recommendedScanChunk,
   recommendedScanConcurrency,
   isUsingHybridLogs,
+  createResilientPublicClient,
 } from "@/lib/rpc";
 
 const approvalEvent = parseAbiItem(
@@ -213,21 +214,47 @@ export async function scanApprovals(
 
   throwIfAborted(signal);
 
-  // Skip EOA with no transactions
-  options.onProgress?.("Checking wallet activity…");
-  const nonce = await client.getTransactionCount({ address: owner });
-  if (nonce === 0) {
-    options.onProgress?.("No transactions on this chain — no approvals.");
-    return [];
-  }
-
-  const latest = await client.getBlockNumber();
-  const fromBlock = Number(resolveFromBlock(latest, lookback));
-  const toBlock = Number(latest);
+  // Prefer resilient multi-RPC client for reads (avoid flaky public batching)
+  const readClient = createResilientPublicClient(
+    chainId,
+    client.chain ?? undefined,
+  );
 
   const useHyper =
     process.env.NEXT_PUBLIC_USE_HYPERSYNC === "true" ||
     process.env.NEXT_PUBLIC_USE_HYPERSYNC === "1";
+
+  // Soft-fail nonce: flaky RPC should not abort the whole scan
+  options.onProgress?.("Checking wallet activity…");
+  try {
+    const nonce = await readClient.getTransactionCount({ address: owner });
+    if (nonce === 0) {
+      options.onProgress?.("No transactions on this chain — no approvals.");
+      return [];
+    }
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e);
+    options.onProgress?.(
+      `RPC nonce check failed (${msg.slice(0, 60)}) — continuing scan…`,
+    );
+  }
+
+  // Prefer HyperSync height when enabled (avoids public RPC for latest block)
+  let latest: bigint;
+  if (useHyper) {
+    try {
+      const { fetchHeightViaApi } = await import("./hypersync");
+      latest = BigInt(await fetchHeightViaApi(chainId, signal));
+    } catch {
+      latest = await readClient.getBlockNumber();
+    }
+  } else {
+    latest = await readClient.getBlockNumber();
+  }
+
+  const fromBlock = Number(resolveFromBlock(latest, lookback));
+  const toBlock = Number(latest);
+
   const hybrid = !useHyper && isUsingHybridLogs(chainId);
   const mode = useHyper
     ? " · Envio HyperSync"
@@ -282,7 +309,7 @@ export async function scanApprovals(
   async function meta(token: Address) {
     const k = token.toLowerCase();
     if (!metaCache.has(k)) {
-      metaCache.set(k, await getTokenMeta(client, token));
+      metaCache.set(k, await getTokenMeta(readClient, token));
     }
     return metaCache.get(k)!;
   }
@@ -309,7 +336,7 @@ export async function scanApprovals(
       } else {
         // Otherwise check live on-chain (may have been partially used)
         allowance = await getErc20Allowance(
-          client,
+          readClient,
           pair.token,
           owner,
           pair.spender,
@@ -356,7 +383,7 @@ export async function scanApprovals(
         approved = true;
       } else {
         approved = await getIsApprovedForAll(
-          client,
+          readClient,
           pair.token,
           owner,
           pair.operator,

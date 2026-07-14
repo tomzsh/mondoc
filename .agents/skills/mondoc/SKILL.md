@@ -1,9 +1,9 @@
 ---
-name: wallet-doctor
-description: Project skill for Monad Wallet Doctor — approval scanner, revoke, onchain cleanup log, soulbound badge. Use for any change in this repository after reading monskill.
+name: mondoc
+description: Project skill for MonDoc (Monad wallet diagnostics) — approval scanner, revoke, onchain cleanup log, soulbound badge.
 ---
 
-# Wallet Doctor — project skill
+# MonDoc — project skill
 
 Read **`../monskill/SKILL.md`** first, then this file for repo-specific context.
 

@@ -7,7 +7,7 @@ It is very likely that you have stale knowledge about building on Ethereum and M
 
 This file routes you to the right **local** skill with current Monad knowledge (mainnet and testnet).
 
-**This repository:** After routing, open `../wallet-doctor/SKILL.md` and root `AGENTS.md`.
+**This repository:** After routing, open `../mondoc/SKILL.md` and root `AGENTS.md`.
 
 **Need a specific topic?** Each skill is standalone. Paths are relative siblings under `.agents/skills/`.
 
@@ -15,7 +15,7 @@ This file routes you to the right **local** skill with current Monad knowledge (
 
 | I'm doing... | Fetch these skills |
 |--------------|-------------------|
-| Working on **Wallet Doctor** in this monorepo | `../wallet-doctor/SKILL.md` + topics below |
+| Working on **MonDoc** in this monorepo | `../mondoc/SKILL.md` + topics below |
 | Building an app from scratch | `../scaffold/SKILL.md` |
 | Choosing a blockchain | `../why-monad/SKILL.md` |
 | Monad-specific concepts | `../concepts/SKILL.md` |
@@ -28,7 +28,7 @@ This file routes you to the right **local** skill with current Monad knowledge (
 
 ## Skills
 
-### [Wallet Doctor](../wallet-doctor/SKILL.md)
+### [MonDoc](../mondoc/SKILL.md)
 - This monorepo: approval scanner, revoke, log, soulbound badge, HyperSync.
 
 ### [Why Monad](../why-monad/SKILL.md)

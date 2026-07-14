@@ -27,4 +27,4 @@ forge script script/SeedTestApprovals.s.sol:SeedTestApprovals \
   -vvvv
 
 echo ""
-echo "Done. Connect the same wallet (deployer) in Wallet Doctor → Scan → All history → Revoke."
+echo "Done. Connect the same wallet (deployer) in MonDoc → Scan → All history → Revoke."

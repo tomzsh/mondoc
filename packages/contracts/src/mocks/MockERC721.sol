@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-/// @notice Minimal ERC-721 for Wallet Doctor revoke demos (testnet only).
+/// @notice Minimal ERC-721 for MonDoc revoke demos (testnet only).
 contract MockERC721 {
     string public name;
     string public symbol;

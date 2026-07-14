@@ -1,5 +1,6 @@
 "use client";
 
+import { Moon, Sun } from "@phosphor-icons/react";
 import { useTheme } from "./ThemeProvider";
 
 export function ThemeToggle() {
@@ -11,9 +12,15 @@ export function ThemeToggle() {
       onClick={toggleTheme}
       aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
       title={theme === "dark" ? "Light mode" : "Dark mode"}
-      className="inline-flex h-7 min-w-7 shrink-0 items-center justify-center border border-border bg-transparent px-1.5 font-mono text-[10px] uppercase tracking-[0.12em] text-muted transition hover:border-foreground hover:text-foreground sm:h-8 sm:min-w-8"
+      className="inline-flex h-7 w-7 shrink-0 items-center justify-center border border-border bg-transparent text-muted transition hover:border-foreground hover:text-foreground sm:h-8 sm:w-8"
     >
-      {!mounted ? "·" : theme === "dark" ? "LT" : "DK"}
+      {!mounted ? (
+        <span className="font-mono text-[10px]">·</span>
+      ) : theme === "dark" ? (
+        <Sun size={14} weight="regular" />
+      ) : (
+        <Moon size={14} weight="regular" />
+      )}
     </button>
   );
 }

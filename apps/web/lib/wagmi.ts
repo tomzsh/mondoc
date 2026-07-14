@@ -1,10 +1,13 @@
 import { getDefaultConfig } from "@rainbow-me/rainbowkit";
-import { http, defineChain, type Chain } from "viem";
+import { http, fallback, defineChain, type Chain } from "viem";
 import {
   getMainnetRpc,
   getTestnetRpc,
+  getRpcFallbacks,
   MONAD_MAINNET_ID,
   MONAD_TESTNET_ID,
+  DEFAULT_TESTNET_RPC,
+  DEFAULT_MAINNET_RPC,
 } from "@/lib/rpc";
 
 const monadIcon = {
@@ -19,6 +22,7 @@ export const monadTestnet = {
     nativeCurrency: { name: "Monad", symbol: "MON", decimals: 18 },
     rpcUrls: {
       default: { http: [getTestnetRpc()] },
+      public: { http: [DEFAULT_TESTNET_RPC] },
     },
     blockExplorers: {
       default: {
@@ -38,6 +42,7 @@ export const monadMainnet = {
     nativeCurrency: { name: "Monad", symbol: "MON", decimals: 18 },
     rpcUrls: {
       default: { http: [getMainnetRpc()] },
+      public: { http: [DEFAULT_MAINNET_RPC] },
     },
     blockExplorers: {
       default: { name: "MonadVision", url: "https://monadvision.com" },
@@ -47,12 +52,6 @@ export const monadMainnet = {
   ...monadIcon,
 } as Chain & { iconUrl: string; iconBackground: string };
 
-/**
- * WalletConnect Cloud project ID is required for the WalletConnect option
- * in the RainbowKit modal. Get one free at https://cloud.walletconnect.com
- *
- * Injected wallets (MetaMask, Rabby, OKX browser extension) work without it.
- */
 const projectId =
   (typeof process !== "undefined" &&
     process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID?.trim()) ||
@@ -61,22 +60,30 @@ const projectId =
 const walletConnectProjectId =
   projectId.length > 0 ? projectId : "00000000000000000000000000000000";
 
+function makeTransport(chainId: number) {
+  const urls = getRpcFallbacks(chainId);
+  const opts = {
+    // Batching causes intermittent "HTTP request failed" on public Monad RPC
+    batch: false as const,
+    retryCount: 3,
+    retryDelay: 400,
+    timeout: 25_000,
+  };
+  if (urls.length === 1) return http(urls[0], opts);
+  return fallback(
+    urls.map((u) => http(u, opts)),
+    { rank: false, retryCount: 1 },
+  );
+}
+
 export const wagmiConfig = getDefaultConfig({
-  appName: "Monad Wallet Doctor",
+  appName: "MonDoc",
   projectId: walletConnectProjectId,
   chains: [monadTestnet, monadMainnet],
   ssr: true,
   transports: {
-    [monadTestnet.id]: http(getTestnetRpc(), {
-      batch: true,
-      retryCount: 2,
-      timeout: 30_000,
-    }),
-    [monadMainnet.id]: http(getMainnetRpc(), {
-      batch: true,
-      retryCount: 2,
-      timeout: 30_000,
-    }),
+    [monadTestnet.id]: makeTransport(MONAD_TESTNET_ID),
+    [monadMainnet.id]: makeTransport(MONAD_MAINNET_ID),
   },
 });
 

@@ -1,185 +1,61 @@
-# Monad Wallet Doctor
+# MonDoc
 
-> Check your wallet health, revoke risky approvals, and prove onchain that your wallet is clean.
+> Clinical wallet diagnostics on Monad — scan approvals, revoke risk, prove cleanups onchain.
 
-**Hackathon:** BuildAnything — Spark · **Network:** Monad Testnet / Mainnet · **Type:** Solo web app + smart contracts
+**Hackathon:** BuildAnything — Spark · **Network:** Monad Testnet / Mainnet
 
-**Repo:** [github.com/tomzsh/wallet-doctor](https://github.com/tomzsh/wallet-doctor) · **X:** [@0xTomzsh](https://x.com/0xTomzsh)
+**Repo:** [github.com/tomzsh/mondoc](https://github.com/tomzsh/mondoc) · **X:** [@0xTomzsh](https://x.com/0xTomzsh)
 
 ## Features
 
 | Feature | Description |
 |---|---|
-| **Connect Wallet** | RainbowKit → MetaMask, WalletConnect, Rabby, OKX, Coinbase, and more. Auto switch/add Monad. |
-| **Approval Scanner** | Approval / ApprovalForAll history via **Envio HyperSync** (or eth_getLogs fallback) + live allowance checks |
-| **Risk labels** | High / Medium / Low from unlimited + known-spender heuristics |
-| **Scan ranges** | 7d · 30d · 1y · All history (cancel anytime when switching) |
-| **Revoke** | `approve(spender, 0)` / `setApprovalForAll(false)` from the user wallet only |
-| **Onchain Log** | `WalletDoctorLog.logCleanup` — cleanup history + onchain score |
-| **Live Health Score** | 0–100 from active approvals + cleanup bonus (dashboard gauge) |
-| **Cleanup Badge NFT** | Soulbound ERC-721 when onchain score ≥ 80; mint score shown on dashboard |
-| **Theme** | Light / dark · mobile-first · Monad brand colors |
+| **Connect Wallet** | RainbowKit → MetaMask, WalletConnect, Rabby, OKX, Coinbase, and more |
+| **Approval Scanner** | Approval / ApprovalForAll via **Envio HyperSync** (or eth_getLogs fallback) |
+| **Risk labels** | High / Medium / Low |
+| **Scan ranges** | 7d · 30d · 1y · All history |
+| **Revoke** | From the user wallet only (`approve(0)` / `setApprovalForAll(false)`) |
+| **Onchain Log** | Self-attested `logCleanup` + score |
+| **Live Health Score** | 0–100 from active approvals + cleanup bonus |
+| **MonDoc Badge** | Soulbound ERC-721 when onchain score ≥ 80 |
+| **UI** | Research-lab monochrome · [Phosphor Icons](https://phosphoricons.com) |
 
-**Security principle:** the frontend **never** custodies funds. Revokes go to the original token contract; Wallet Doctor contracts only record results.
+**Security:** the frontend **never** custodies funds. Scores/badges are **self-attested** after you revoke.
 
 ## Structure
 
 ```
-apps/web                 Next.js 14 (App Router) + wagmi / RainbowKit / viem
-packages/contracts       Foundry: WalletDoctorLog + WalletDoctorBadge + test mocks
-scripts/                 deploy-testnet.sh · seed-test-approvals.sh
+apps/web                 Next.js 14 + wagmi / RainbowKit / viem / Phosphor
+packages/contracts       Foundry: WalletDoctorLog + WalletDoctorBadge (MonDoc brand)
+scripts/                 deploy · seed · skills:sync
+.agents/skills/          MONSKILLS + project skill
 ```
 
 ## Quick start
 
-### 1. Smart contracts
-
-```bash
-export PATH="$HOME/.foundry/bin:$PATH"
-cd packages/contracts
-forge install   # if lib/ is missing
-forge build
-forge test -vv
-```
-
-Deploy to Monad Testnet (auto-wires frontend env):
-
-```bash
-cp packages/contracts/.env.example packages/contracts/.env
-# set PRIVATE_KEY=0x...  (wallet with testnet MON)
-# Fund: https://faucet.monad.xyz/
-
-pnpm deploy:testnet
-```
-
-Addresses are written to `apps/web/.env.local` and `packages/contracts/deployments.testnet.json`.
-
-### 2. Frontend
-
 ```bash
 cp apps/web/.env.example apps/web/.env.local
-# fill WalletConnect project ID, contract addresses, optional ENVIO_API_TOKEN
+# WalletConnect, contract addresses, ENVIO_API_TOKEN, optional Alchemy RPC
 
 pnpm install
 pnpm dev
 # → http://localhost:3000
 ```
 
-### Important env (`apps/web/.env.local`)
-
-```env
-NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID=...
-
-# Contracts (filled by pnpm deploy:testnet)
-NEXT_PUBLIC_LOG_ADDRESS_TESTNET=0x...
-NEXT_PUBLIC_BADGE_ADDRESS_TESTNET=0x...
-
-# Wallet / eth_call RPC (Alchemy recommended)
-NEXT_PUBLIC_MONAD_TESTNET_RPC=https://testnet-rpc.monad.xyz
-NEXT_PUBLIC_MONAD_MAINNET_RPC=https://rpc.monad.xyz
-
-# Fast history scans — Envio HyperSync (server-side token only)
-ENVIO_API_TOKEN=...
-NEXT_PUBLIC_USE_HYPERSYNC=true
-```
-
-| Variable | Notes |
-|---|---|
-| `ENVIO_API_TOKEN` | [envio.dev/app/api-tokens](https://envio.dev/app/api-tokens) — **never** commit; not `NEXT_PUBLIC_` |
-| `NEXT_PUBLIC_USE_HYPERSYNC` | `true` → client uses `/api/hypersync/*` proxy |
-| `NEXT_PUBLIC_MONAD_LOGS_RPC` | Optional override for eth_getLogs when HyperSync is off |
-| `NEXT_PUBLIC_SCAN_CHUNK_SIZE` | Fallback eth_getLogs chunk (public RPC ≈ 100) |
-
-WalletConnect Project ID: [cloud.walletconnect.com](https://cloud.walletconnect.com)
-
-### Scan performance notes
-
-- **With HyperSync:** full-history Approval scans typically finish in tens of seconds.
-- **Without HyperSync:** public Monad RPC limits `eth_getLogs` to ~100 blocks/request — use shorter ranges (7d / 30d) or set a premium RPC.
-- Alchemy Free on Monad currently caps `eth_getLogs` at ~10 blocks; keep Alchemy for wallet/`eth_call` and HyperSync (or public) for logs.
+Deploy contracts: `pnpm deploy:testnet`  
+Seed demo approvals: `pnpm seed:approvals`  
+Sync Monad agent skills: `pnpm skills:sync`
 
 ## Deployed contracts (Monad Testnet · v2)
 
 | Contract | Address |
 |---|---|
-| **WalletDoctorLog** | [`0x33926537818aB3113cEE97311CC32Bee385C02b5`](https://testnet.monadexplorer.com/address/0x33926537818aB3113cEE97311CC32Bee385C02b5) |
-| **WalletDoctorBadge** | [`0xa1aC20EaBd9db2F22eFad97c704A919b83E98e54`](https://testnet.monadexplorer.com/address/0xa1aC20EaBd9db2F22eFad97c704A919b83E98e54) |
+| **Log** | [`0x33926537818aB3113cEE97311CC32Bee385C02b5`](https://testnet.monadexplorer.com/address/0x33926537818aB3113cEE97311CC32Bee385C02b5) |
+| **Badge** | [`0xa1aC20EaBd9db2F22eFad97c704A919b83E98e54`](https://testnet.monadexplorer.com/address/0xa1aC20EaBd9db2F22eFad97c704A919b83E98e54) |
 
-v2: self-attested log with zero-address checks, page limit 50; soulbound badge with `scoreAtMint` / `tokenIdOf` / `tokenURI`.
+## Agents
 
-## Chain reference
-
-| | Testnet | Mainnet |
-|---|---|---|
-| Chain ID | `10143` | `143` |
-| RPC | `https://testnet-rpc.monad.xyz` | `https://rpc.monad.xyz` |
-| Explorer | testnet.monadexplorer.com | monadvision.com |
-
-## Health score (v1)
-
-```
-score = 100
-  - unlimited_unknown × 15
-  - unlimited_known   × 7
-  - other_active      × 2
-score = max(score, 0)
-score += min(cleanupCount × 5, 20)
-score = min(score, 100)
-```
-
-- **Live score** — computed in the app from the current approval scan.
-- **Onchain score** — last value written via `logCleanup` (drives badge mint).
-- **NFT score at mint** — `BadgeMinted.scoreAtMint` shown on the dashboard badge card.
-
-## Seed test approvals (demo revoke)
-
-```bash
-# packages/contracts/.env must have PRIVATE_KEY + funded testnet wallet
-pnpm seed:approvals
-# or: bash scripts/seed-test-approvals.sh
-```
-
-Deploys mock `wdUSD` / `wdETH` / `wdNFT` and creates mixed-risk approvals for the deployer. See `packages/contracts/seed-approvals.testnet.json`.
-
-## Scripts
-
-| Command | Description |
-|---|---|
-| `pnpm dev` | Next.js dev server |
-| `pnpm build` | Production web build |
-| `pnpm contracts:test` | Foundry tests |
-| `pnpm deploy:testnet` | Deploy contracts + wire `.env.local` |
-| `pnpm seed:approvals` | Mock tokens + test approvals on testnet |
-| `pnpm skills:sync` | Refresh local MONSKILLS under `.agents/skills/` |
-
-## Agents & skills (MONSKILLS)
-
-This repo is wired for AI agents building on Monad:
-
-1. **Entry:** [`AGENTS.md`](./AGENTS.md) — hard rules + skill routing  
-2. **Router:** [`.agents/skills/monskill/SKILL.md`](./.agents/skills/monskill/SKILL.md)  
-3. **Project skill:** [`.agents/skills/wallet-doctor/SKILL.md`](./.agents/skills/wallet-doctor/SKILL.md)  
-4. **Topics:** `addresses`, `gas`, `wallet-integration`, `indexer`, … under `.agents/skills/`
-
-```bash
-# install / refresh Monad skills (does not overwrite wallet-doctor project skill)
-pnpm skills:sync
-# or: npx skills add therealharpaljadeja/monskills
-```
-
-Agents must **not** invent addresses or ignore Monad gas-limit billing — see `gas/` and `addresses/` skills.
-
-## Tech stack
-
-Next.js 14 · TypeScript · Tailwind · RainbowKit v2 · wagmi v2 · viem · TanStack Query · Zustand · sonner · Envio HyperSync · Solidity 0.8.24 · Foundry · OpenZeppelin
-
-## UI
-
-- Clean, mobile-first interface with **Monad brand colors**
-  ([Brand & Media Kit](https://www.monad.xyz/brand-and-media-kit))
-- Primary: `#6E54FF` · Soft: `#DDD7FE` · Ink: `#0E091C`
-- Typography: Inter + Roboto Mono
-- Light / dark mode (persisted)
+See [`AGENTS.md`](./AGENTS.md). Start with local MONSKILLS (`monskill` → `mondoc` project skill).
 
 ## License
 

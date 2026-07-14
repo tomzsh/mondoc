@@ -31,7 +31,7 @@ contract WalletDoctorBadge is ERC721 {
 
     event BadgeMinted(address indexed wallet, uint256 indexed tokenId, uint256 scoreAtMint);
 
-    constructor(address logContractAddress) ERC721("Wallet Doctor Cleanup Badge", "WDCB") {
+    constructor(address logContractAddress) ERC721("MonDoc Cleanup Badge", "MDOC") {
         logContract = IWalletDoctorLog(logContractAddress);
     }
 
@@ -63,9 +63,9 @@ contract WalletDoctorBadge is ERC721 {
     function tokenURI(uint256 tokenId) public view override returns (string memory) {
         _requireOwned(tokenId);
         uint256 score = scoreAtMint[tokenId];
-        string memory name = string.concat("Wallet Doctor Badge #", tokenId.toString());
+        string memory name = string.concat("MonDoc Badge #", tokenId.toString());
         string memory description =
-            "Soulbound cleanup badge on Monad. Score is self-attested via WalletDoctorLog (hackathon demo).";
+            "Soulbound MonDoc cleanup badge on Monad. Score is self-attested via MonDoc Log (hackathon demo).";
         string memory json = string.concat(
             '{"name":"',
             name,

@@ -5,7 +5,7 @@ import { scoreColor, scoreLabel } from "@/lib/score/calculateScore";
 import { cn } from "@/lib/utils";
 import { getExplorerAddressUrl } from "@/lib/wagmi";
 import { useAccount } from "wagmi";
-import { AppLogo } from "@/components/brand/AppLogo";
+import { MedalMilitary } from "@phosphor-icons/react";
 
 /**
  * Soulbound Cleanup Badge NFT + onchain score panel.
@@ -57,9 +57,9 @@ export function BadgeNftCard({ className }: { className?: string }) {
             <span className="font-mono text-xs text-muted">…</span>
           ) : hasBadge ? (
             <div className="text-center">
-              <AppLogo size={48} />
+              <MedalMilitary size={40} weight="regular" className="text-foreground" />
               <div className="mt-2 font-mono text-[10px] uppercase tracking-[0.16em] text-muted">
-                WDCB
+                MDOC
               </div>
               {tokenId != null && (
                 <div className="font-mono text-[10px] text-foreground">
@@ -174,7 +174,7 @@ function Header() {
     <div>
       <div className="section-kicker">Cleanup Badge NFT</div>
       <h2 className="mt-1 text-lg font-semibold tracking-tight">
-        Wallet Doctor Badge
+        MonDoc Badge
       </h2>
     </div>
   );

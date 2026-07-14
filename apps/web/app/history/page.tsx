@@ -17,7 +17,7 @@ export default function HistoryPage() {
         <p className="page-desc">
           Successful revokes can be recorded on{" "}
           <code className="border border-border bg-accent-soft px-1.5 py-0.5 font-mono text-[12px]">
-            WalletDoctorLog
+            MonDoc Log
           </code>{" "}
           — permanent and verifiable by anyone.
         </p>
@@ -40,7 +40,7 @@ function HistoryBody() {
       <div className="ui-card border-warning/30 bg-warning/5 p-5 text-sm sm:p-6">
         <p className="font-semibold">Contract not configured</p>
         <p className="mt-2 break-words text-muted">
-          Deploy WalletDoctorLog, then set{" "}
+          Deploy MonDoc Log, then set{" "}
           <code className="rounded bg-surface px-1 font-mono text-xs">
             NEXT_PUBLIC_LOG_ADDRESS_TESTNET
           </code>{" "}

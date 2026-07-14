@@ -40,7 +40,7 @@ export function useRevoke() {
     async (spender: Address, token: Address, newScore: number) => {
       if (!chainId || !isContractConfigured(chainId)) {
         toast.message("Cleanup log skipped", {
-          description: "WalletDoctorLog is not set (NEXT_PUBLIC_LOG_ADDRESS_*).",
+          description: "MonDoc log contract is not set (NEXT_PUBLIC_LOG_ADDRESS_*).",
         });
         return;
       }
@@ -113,8 +113,8 @@ export function useRevoke() {
         });
         setPendingHash(hash);
         if (client) await client.waitForTransactionReceipt({ hash });
-        toast.success("Cleanup Badge minted! 🏅", {
-          description: "Soulbound NFT as proof of a healthy wallet.",
+        toast.success("MonDoc badge minted", {
+          description: "Soulbound NFT — self-attested cleanup proof.",
         });
       } catch {
         // mint is best-effort; score may not be onchain yet or already minted

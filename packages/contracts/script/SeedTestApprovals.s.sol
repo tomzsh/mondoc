@@ -5,7 +5,7 @@ import {Script, console2} from "forge-std/Script.sol";
 import {MockERC20} from "../src/mocks/MockERC20.sol";
 import {MockERC721} from "../src/mocks/MockERC721.sol";
 
-/// @notice Deploy mock tokens + seed approvals so Wallet Doctor Scan/Revoke can be demoed.
+/// @notice Deploy mock tokens + seed approvals so MonDoc Scan/Revoke can be demoed.
 /// @dev Uses PRIVATE_KEY from env. Optional TARGET_WALLET (defaults to deployer).
 contract SeedTestApprovals is Script {
     // Known router (medium risk when unlimited)
@@ -27,9 +27,9 @@ contract SeedTestApprovals is Script {
 
         vm.startBroadcast(key);
 
-        MockERC20 tokenA = new MockERC20("WalletDoctor USD", "wdUSD");
-        MockERC20 tokenB = new MockERC20("WalletDoctor ETH", "wdETH");
-        MockERC721 nft = new MockERC721("WalletDoctor NFT", "wdNFT");
+        MockERC20 tokenA = new MockERC20("MonDoc USD", "mdUSD");
+        MockERC20 tokenB = new MockERC20("MonDoc ETH", "mdETH");
+        MockERC721 nft = new MockERC721("MonDoc NFT", "mdNFT");
 
         // Fund the test wallet with balances (not required for revoke, but realistic)
         tokenA.mint(wallet, 1_000_000 ether);
@@ -66,6 +66,6 @@ contract SeedTestApprovals is Script {
         console2.log("MockERC20 wdUSD:", address(tokenA));
         console2.log("MockERC20 wdETH:", address(tokenB));
         console2.log("MockERC721 wdNFT:", address(nft));
-        console2.log("Open Wallet Doctor Scan (All history) with wallet:", wallet);
+        console2.log("Open MonDoc Scan (All history) with wallet:", wallet);
     }
 }

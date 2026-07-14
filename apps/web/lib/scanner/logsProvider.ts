@@ -78,9 +78,11 @@ export class ViemLogsProvider implements LogsProvider {
   ) {
     this.client = createPublicClient({
       transport: http(url, {
-        batch: true,
-        retryCount: 1,
-        timeout: 30_000,
+        // Public Monad RPC flakes under JSON-RPC batching
+        batch: false,
+        retryCount: 3,
+        retryDelay: 400,
+        timeout: 25_000,
       }),
     });
   }

@@ -56,7 +56,7 @@ function AppShell({ children }: { children: ReactNode }) {
           locale="en-US"
           modalSize="compact"
           appInfo={{
-            appName: "Wallet Doctor",
+            appName: "MonDoc",
             learnMoreUrl: "https://www.monad.xyz",
           }}
         >

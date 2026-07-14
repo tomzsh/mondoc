@@ -113,10 +113,10 @@ if [[ -f "$WEB_ENV" ]]; then
 from pathlib import Path
 path = Path("$WEB_ENV")
 text = path.read_text() if path.exists() else ""
+# Do NOT overwrite NEXT_PUBLIC_MONAD_*_RPC — user may use Alchemy / premium RPC
 updates = {
     "NEXT_PUBLIC_LOG_ADDRESS_TESTNET": "$LOG_ADDR",
     "NEXT_PUBLIC_BADGE_ADDRESS_TESTNET": "$BADGE_ADDR",
-    "NEXT_PUBLIC_MONAD_TESTNET_RPC": "$RPC",
 }
 lines = text.splitlines()
 keys_done = set()

@@ -40,12 +40,23 @@ export default function ScanPage() {
             {approvalsError && (
               <div className="ui-card break-words border-danger/30 bg-danger/5 p-4 text-sm text-danger">
                 <p className="font-semibold">
-                  Scan failed: {(approvalsError as Error).message?.slice(0, 200)}
+                  Scan failed:{" "}
+                  {(approvalsError as Error).message?.includes("HTTP request failed")
+                    ? "RPC endpoint unreachable or rate-limited"
+                    : (approvalsError as Error).message?.slice(0, 180)}
                 </p>
                 <p className="mt-1 text-xs text-muted">
-                  Public RPCs often rate-limit deep eth_getLogs. Try a shorter range
-                  (7d / 30d), or set a paid RPC in{" "}
-                  <code className="rounded bg-surface px-1">NEXT_PUBLIC_MONAD_*_RPC</code>.
+                  Tips: ensure{" "}
+                  <code className="border border-border bg-surface px-1">
+                    NEXT_PUBLIC_MONAD_TESTNET_RPC
+                  </code>{" "}
+                  (Alchemy recommended), keep{" "}
+                  <code className="border border-border bg-surface px-1">
+                    NEXT_PUBLIC_USE_HYPERSYNC=true
+                  </code>
+                  , restart{" "}
+                  <code className="border border-border bg-surface px-1">pnpm dev</code>
+                  , or try a shorter range (7d / 30d).
                 </p>
               </div>
             )}
