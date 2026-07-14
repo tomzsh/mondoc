@@ -130,7 +130,10 @@ export default function RootLayout({
         <script dangerouslySetInnerHTML={{ __html: chunkRecoveryScript }} />
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
       </head>
-      <body className="flex min-h-screen flex-col font-body antialiased">
+      <body
+        className="flex min-h-screen flex-col font-body antialiased"
+        suppressHydrationWarning
+      >
         <ChunkLoadRecovery />
         <Providers>
           <Navbar />

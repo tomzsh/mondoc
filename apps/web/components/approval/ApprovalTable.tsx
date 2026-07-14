@@ -101,7 +101,7 @@ export function ApprovalTable({ approvals }: { approvals: ClassifiedApproval[] }
             Range: <span className="font-medium text-foreground">{range.label}</span>
             {range.lookbackBlocks === null
               ? " · from genesis (includes old approvals)"
-              : ` · ~${range.lookbackBlocks.toLocaleString()} blocks`}
+              : ` · ~${range.lookbackBlocks.toLocaleString("en-US")} blocks`}
           </p>
           <div className="flex flex-col gap-2 sm:flex-row sm:justify-end">
             <button

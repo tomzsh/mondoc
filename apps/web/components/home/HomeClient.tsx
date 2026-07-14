@@ -7,10 +7,14 @@ import { ConnectButton } from "@/components/wallet/ConnectButton";
 import { AppLogo } from "@/components/brand/AppLogo";
 import { AttestationNote } from "@/components/layout/AttestationNote";
 import { HomeDashboard } from "@/components/home/HomeDashboard";
+import { useHasMounted } from "@/lib/useHasMounted";
 
-/** Home shell + connected dashboard (static import — no stale code-split). */
+/** Home shell + connected dashboard. */
 export function HomeClient() {
+  const hasMounted = useHasMounted();
   const { isConnected } = useAccount();
+  // SSR + first client paint always use disconnected UI (prevents hydration mismatch)
+  const connected = hasMounted && isConnected;
 
   return (
     <div className="space-y-10 sm:space-y-14" data-mondoc-home="no-badge">
@@ -39,7 +43,7 @@ export function HomeClient() {
           </p>
 
           <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
-            {!isConnected ? (
+            {!connected ? (
               <div className="max-w-xs">
                 <ConnectButton />
               </div>
@@ -72,7 +76,7 @@ export function HomeClient() {
 
       <AttestationNote />
 
-      {isConnected ? (
+      {connected ? (
         <ChainGuard>
           <HomeDashboard />
         </ChainGuard>

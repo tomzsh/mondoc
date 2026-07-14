@@ -97,7 +97,9 @@ forge script script/Deploy.s.sol --rpc-url $MONAD_TESTNET_RPC_URL --broadcast`}
                 return (
                   <article key={i} className="rounded-xl border border-border p-3.5">
                     <div className="flex items-start justify-between gap-2">
-                      <div className="text-xs text-muted">{ts.toLocaleString("en-US")}</div>
+                      <div className="text-xs text-muted" suppressHydrationWarning>
+                        {ts.toLocaleString("en-US", { timeZone: "UTC" })} UTC
+                      </div>
                       <div className="text-lg font-semibold tabular-nums text-success">
                         {Number(row.scoreAfter)}
                       </div>
@@ -145,8 +147,11 @@ forge script script/Deploy.s.sol --rpc-url $MONAD_TESTNET_RPC_URL --broadcast`}
                     const ts = new Date(Number(row.timestamp) * 1000);
                     return (
                       <tr key={i} className="border-b border-border hover:bg-accent-soft/30">
-                        <td className="whitespace-nowrap px-4 py-3 text-muted">
-                          {ts.toLocaleString("en-US")}
+                        <td
+                          className="whitespace-nowrap px-4 py-3 text-muted"
+                          suppressHydrationWarning
+                        >
+                          {ts.toLocaleString("en-US", { timeZone: "UTC" })} UTC
                         </td>
                         <td className="px-4 py-3 font-mono text-xs text-muted">
                           {chainId ? (

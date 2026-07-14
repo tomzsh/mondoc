@@ -6,13 +6,39 @@ import {
   MonadNetworkIcon,
   MONAD_CHAIN_IDS,
 } from "@/components/brand/MonadNetworkIcon";
+import { useHasMounted } from "@/lib/useHasMounted";
+
+/** Stable SSR + first paint markup (must match server HTML). */
+function ConnectPlaceholder() {
+  return (
+    <button
+      type="button"
+      className="rk-header-btn rk-header-btn-primary"
+      aria-label="Connect wallet"
+      disabled
+    >
+      <span className="sm:hidden">Connect</span>
+      <span className="hidden sm:inline">Connect wallet</span>
+    </button>
+  );
+}
 
 /**
  * Compact header wallet control.
- * Never stays permanently disabled — that previously blocked clicks when
- * RainbowKit `mounted` / dynamic import lag hung in dev.
+ * Waits for client mount before reading RainbowKit account state so SSR HTML
+ * always matches the first client paint (avoids hydration text mismatches).
  */
 export function ConnectButton() {
+  const hasMounted = useHasMounted();
+
+  if (!hasMounted) {
+    return (
+      <div className="rk-connect-wrap">
+        <ConnectPlaceholder />
+      </div>
+    );
+  }
+
   return (
     <div className="rk-connect-wrap">
       <RKConnectButton.Custom>
@@ -24,21 +50,8 @@ export function ConnectButton() {
           openConnectModal,
           mounted,
         }) => {
-          // Ignore authenticationStatus — we don't use RK auth; some builds
-          // leave it as "loading" and that previously forced a disabled button.
           if (!mounted) {
-            return (
-              <button
-                type="button"
-                className="rk-header-btn rk-header-btn-primary"
-                aria-label="Connect wallet"
-                // Not disabled: allows click once modal API is ready; no-op before
-                onClick={() => openConnectModal?.()}
-              >
-                <span className="sm:hidden">Connect</span>
-                <span className="hidden sm:inline">Connect wallet</span>
-              </button>
-            );
+            return <ConnectPlaceholder />;
           }
 
           if (!account || !chain) {

@@ -65,7 +65,7 @@ export function Footer() {
       </div>
       <div className="border-t border-border px-4 py-3 font-mono text-[10px] uppercase tracking-[0.14em] text-muted sm:px-6">
         <div className="mx-auto flex max-w-6xl flex-col gap-1 sm:flex-row sm:justify-between">
-          <span>© {new Date().getFullYear()} MonDoc</span>
+          <span suppressHydrationWarning>© {new Date().getFullYear()} MonDoc</span>
           <span>Open source · No custody · Onchain log</span>
         </div>
       </div>
