@@ -1,37 +1,19 @@
 "use client";
 
-import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useAccount } from "wagmi";
 import { ChainGuard } from "@/components/wallet/ChainGuard";
 import { ConnectButton } from "@/components/wallet/ConnectButton";
 import { AppLogo } from "@/components/brand/AppLogo";
 import { AttestationNote } from "@/components/layout/AttestationNote";
+import { HomeDashboard } from "@/components/home/HomeDashboard";
 
-/** Heavy diagnostics — only after connect */
-const HomeDashboard = dynamic(
-  () =>
-    import("@/components/home/HomeDashboard").then((m) => m.HomeDashboard),
-  {
-    ssr: false,
-    loading: () => (
-      <div
-        className="flex min-h-[12rem] items-center justify-center border border-border bg-surface"
-        role="status"
-      >
-        <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-muted">
-          Loading diagnostics…
-        </p>
-      </div>
-    ),
-  },
-);
-
+/** Home shell + connected dashboard (static import — no stale code-split). */
 export function HomeClient() {
   const { isConnected } = useAccount();
 
   return (
-    <div className="space-y-10 sm:space-y-14">
+    <div className="space-y-10 sm:space-y-14" data-mondoc-home="no-badge">
       <section className="hero-panel p-6 sm:p-10 lg:p-12">
         <div className="relative z-[1] max-w-2xl">
           <div className="mb-6 flex items-center gap-3">

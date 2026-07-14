@@ -26,7 +26,7 @@ export function HomeDashboard() {
   const showScore = !approvalsLoading;
 
   return (
-    <div className="space-y-8 sm:space-y-10">
+    <div className="space-y-8 sm:space-y-10" data-mondoc-dashboard="no-badge">
       <div className="grid gap-px border border-border bg-border lg:grid-cols-[1.1fr_1fr]">
         <section className="bg-surface p-6 sm:p-8">
           <div className="section-kicker">Live diagnostics</div>
