@@ -1,0 +1,12 @@
+{
+  "chainId": 10143,
+  "network": "monad-testnet",
+  "deployer": "0x23947730B347A3d55e1eAc1d04d007dB29e818d9",
+  "WalletDoctorLog": "0x24f12073DC3865c816fb35d88486e3Ba88d0E167",
+  "WalletDoctorBadge": "0x489C2396D1382FA81fBeD3399626e67A421968A7",
+  "rpc": "https://testnet-rpc.monad.xyz",
+  "explorer": {
+    "log": "https://testnet.monadexplorer.com/address/0x24f12073DC3865c816fb35d88486e3Ba88d0E167",
+    "badge": "https://testnet.monadexplorer.com/address/0x489C2396D1382FA81fBeD3399626e67A421968A7"
+  }
+}

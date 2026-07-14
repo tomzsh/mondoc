@@ -1,0 +1,19 @@
+{
+  "name": "monad-wallet-doctor",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Cek kesehatan wallet Monad, cabut approval berbahaya, catat onchain.",
+  "scripts": {
+    "dev": "pnpm --filter web dev",
+    "build": "pnpm --filter web build",
+    "lint": "pnpm --filter web lint",
+    "contracts:build": "cd packages/contracts && forge build",
+    "contracts:test": "cd packages/contracts && forge test -vv",
+    "contracts:deploy:testnet": "bash scripts/deploy-testnet.sh",
+    "deploy:testnet": "bash scripts/deploy-testnet.sh"
+  },
+  "packageManager": "pnpm@9.15.0",
+  "engines": {
+    "node": ">=18"
+  }
+}

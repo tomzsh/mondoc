@@ -1,0 +1,19 @@
+# Compiler files
+cache/
+out/
+
+# Logs & broadcast (contain tx metadata; keep local only)
+.logs/
+.ignore/
+broadcast/
+
+# Docs
+docs/
+
+# Env secrets
+.env
+.env.*
+!.env.example
+
+# Foundry deps (forge install)
+lib/
