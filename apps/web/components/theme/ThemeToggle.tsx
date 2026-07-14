@@ -12,7 +12,7 @@ export function ThemeToggle() {
       onClick={toggleTheme}
       aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
       title={theme === "dark" ? "Light mode" : "Dark mode"}
-      className="inline-flex h-7 w-7 shrink-0 items-center justify-center border border-border bg-transparent text-muted transition hover:border-foreground hover:text-foreground sm:h-8 sm:w-8"
+      className="inline-flex h-8 w-8 shrink-0 items-center justify-center border border-border bg-transparent text-muted transition hover:border-accent hover:text-foreground sm:h-8 sm:w-8"
     >
       {!mounted ? (
         <span className="font-mono text-[10px]">·</span>

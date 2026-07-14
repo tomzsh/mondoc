@@ -6,7 +6,7 @@ import { FirstAidKit } from "@phosphor-icons/react";
  */
 export function AppLogo({
   className,
-  size = 32,
+  size = 28,
 }: {
   className?: string;
   size?: number;
@@ -14,7 +14,7 @@ export function AppLogo({
   return (
     <span
       className={cn(
-        "inline-flex shrink-0 items-center justify-center border border-border bg-surface text-foreground",
+        "inline-flex shrink-0 items-center justify-center border border-accent bg-accent text-accent-fg",
         className,
       )}
       style={{ width: size, height: size }}
@@ -36,10 +36,16 @@ export function AppWordmark({
   showTagline?: boolean;
 }) {
   return (
-    <div className={cn("flex min-w-0 items-center gap-2.5", className)}>
-      <AppLogo size={size} />
+    <div className={cn("flex min-w-0 items-center gap-2 sm:gap-2.5", className)}>
+      {/* Compact on mobile, slightly larger from sm */}
+      <span className="sm:hidden">
+        <AppLogo size={Math.min(size, 24)} />
+      </span>
+      <span className="hidden sm:inline-flex">
+        <AppLogo size={size} />
+      </span>
       <div className="min-w-0 leading-none">
-        <div className="truncate font-body text-[13px] font-semibold tracking-[0.08em] text-foreground sm:text-sm">
+        <div className="truncate font-body text-xs font-semibold tracking-[0.1em] text-foreground sm:text-sm sm:tracking-[0.08em]">
           MONDOC
         </div>
         {showTagline && (

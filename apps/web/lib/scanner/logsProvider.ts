@@ -104,7 +104,17 @@ export class ViemLogsProvider implements LogsProvider {
       ],
     });
 
-    return (logs as any[]).map((log) => ({
+    type RpcLog = {
+      address: string;
+      topics?: Hex[];
+      data: Hex;
+      blockNumber: string | number | bigint;
+      transactionHash: `0x${string}`;
+      logIndex?: string | number;
+      transactionIndex?: string | number;
+    };
+
+    return (logs as RpcLog[]).map((log) => ({
       address: getAddress(log.address),
       topics: (log.topics ?? []) as Hex[],
       data: log.data as Hex,

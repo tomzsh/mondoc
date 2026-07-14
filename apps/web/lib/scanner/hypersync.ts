@@ -6,7 +6,7 @@
  * Token stays server-side (ENVIO_API_TOKEN) via /api/hypersync/*.
  */
 
-import { type Address, type Hex, getAddress } from "viem";
+import { type Hex, getAddress } from "viem";
 import type { LogFilter, RawLog } from "./logsProvider";
 import { MONAD_MAINNET_ID, MONAD_TESTNET_ID } from "@/lib/rpc";
 

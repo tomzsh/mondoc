@@ -1,4 +1,5 @@
 import { getDefaultConfig } from "@rainbow-me/rainbowkit";
+import { cookieStorage, createStorage } from "wagmi";
 import { http, fallback, defineChain, type Chain } from "viem";
 import {
   getMainnetRpc,
@@ -81,6 +82,7 @@ export const wagmiConfig = getDefaultConfig({
   projectId: walletConnectProjectId,
   chains: [monadTestnet, monadMainnet],
   ssr: true,
+  storage: createStorage({ storage: cookieStorage }),
   transports: {
     [monadTestnet.id]: makeTransport(MONAD_TESTNET_ID),
     [monadMainnet.id]: makeTransport(MONAD_MAINNET_ID),

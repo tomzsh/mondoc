@@ -29,18 +29,19 @@ function AppShell({ children }: { children: ReactNode }) {
 
   const rkTheme = useMemo(() => {
     const mode = mounted ? theme : "dark";
+    // Monad primary #6E54FF (brand kit)
     if (mode === "dark") {
       return darkTheme({
-        accentColor: "#F2F2F2",
-        accentColorForeground: "#050505",
+        accentColor: "#6E54FF",
+        accentColorForeground: "#FFFFFF",
         borderRadius: "none",
         fontStack: "system",
         overlayBlur: "small",
       });
     }
     return lightTheme({
-      accentColor: "#0A0A0A",
-      accentColorForeground: "#FAFAF8",
+      accentColor: "#6E54FF",
+      accentColorForeground: "#FFFFFF",
       borderRadius: "none",
       fontStack: "system",
       overlayBlur: "small",

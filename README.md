@@ -18,7 +18,7 @@
 | **Onchain Log** | Self-attested `logCleanup` + score |
 | **Live Health Score** | 0–100 from active approvals + cleanup bonus |
 | **MonDoc Badge** | Soulbound ERC-721 when onchain score ≥ 80 |
-| **UI** | Research-lab monochrome · [Phosphor Icons](https://phosphoricons.com) |
+| **UI** | [Monad brand kit](https://www.monad.xyz/brand-and-media-kit) · [Phosphor Icons](https://phosphoricons.com) |
 
 **Security:** the frontend **never** custodies funds. Scores/badges are **self-attested** after you revoke.
 

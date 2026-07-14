@@ -3,56 +3,57 @@
 @tailwind utilities;
 
 /*
-  MonDoc · research-lab aesthetic
-  Inspired by monochrome open-research product design:
-  near-black field, white type, mono metadata, sparse UI.
+  MonDoc · Monad brand
+  Colors from https://www.monad.xyz/brand-and-media-kit
+  Primary: #6E54FF · #DDD7FE · #0E091C · #000000 · #FFFFFF
+  Secondary: #85E6FF · #B9E3F9 · #FF8EE4 · #FFAE45
 */
 
 :root {
-  --background: #f4f3ef;
-  --foreground: #0a0a0a;
-  --surface: #fafaf8;
-  --muted: #6b6b6b;
-  --border: #e2e0d8;
-  --border-strong: #c8c5bb;
-  --accent: #0a0a0a;
-  --accent-soft: #ebeae4;
-  --accent-hover: #2a2a2a;
-  --accent-fg: #fafaf8;
-  --accent-2: #8a8a8a;
-  --accent-3: #c8c5bb;
-  --accent-4: #3d3d3d;
-  --danger: #b42318;
-  --success: #1a7a45;
-  --warning: #a15c07;
-  --ring: rgba(10, 10, 10, 0.2);
-  --shadow: 0 1px 0 rgba(10, 10, 10, 0.04);
-  --shadow-md: 0 8px 32px rgba(10, 10, 10, 0.06);
-  --grid-line: rgba(10, 10, 10, 0.04);
+  --background: #f6f4ff;
+  --foreground: #0e091c;
+  --surface: #ffffff;
+  --muted: #6b6580;
+  --border: #ddd7fe;
+  --border-strong: #b8aef5;
+  --accent: #6e54ff;
+  --accent-soft: #ddd7fe;
+  --accent-hover: #5a42e6;
+  --accent-fg: #ffffff;
+  --accent-2: #85e6ff;
+  --accent-3: #b9e3f9;
+  --accent-4: #0e091c;
+  --danger: #e11d48;
+  --success: #0d9488;
+  --warning: #ffae45;
+  --ring: rgba(110, 84, 255, 0.35);
+  --shadow: 0 1px 0 rgba(14, 9, 28, 0.04);
+  --shadow-md: 0 12px 40px rgba(110, 84, 255, 0.12);
+  --grid-line: rgba(110, 84, 255, 0.07);
   color-scheme: light;
 }
 
 .dark {
-  --background: #050505;
-  --foreground: #f2f2f2;
-  --surface: #0c0c0c;
-  --muted: #8a8a8a;
-  --border: #1c1c1c;
-  --border-strong: #2e2e2e;
-  --accent: #f2f2f2;
-  --accent-soft: #141414;
-  --accent-hover: #ffffff;
-  --accent-fg: #050505;
-  --accent-2: #6e6e6e;
-  --accent-3: #3a3a3a;
-  --accent-4: #d4d4d4;
-  --danger: #f97066;
-  --success: #47cd89;
-  --warning: #fdb022;
-  --ring: rgba(242, 242, 242, 0.18);
-  --shadow: 0 1px 0 rgba(255, 255, 255, 0.03);
-  --shadow-md: 0 12px 40px rgba(0, 0, 0, 0.45);
-  --grid-line: rgba(255, 255, 255, 0.035);
+  --background: #0e091c;
+  --foreground: #ffffff;
+  --surface: #151025;
+  --muted: #9b94b8;
+  --border: #2a2248;
+  --border-strong: #3d3366;
+  --accent: #6e54ff;
+  --accent-soft: #1c1535;
+  --accent-hover: #8570ff;
+  --accent-fg: #ffffff;
+  --accent-2: #85e6ff;
+  --accent-3: #2a2248;
+  --accent-4: #ddd7fe;
+  --danger: #ff8ee4;
+  --success: #85e6ff;
+  --warning: #ffae45;
+  --ring: rgba(110, 84, 255, 0.45);
+  --shadow: 0 1px 0 rgba(255, 255, 255, 0.04);
+  --shadow-md: 0 16px 48px rgba(0, 0, 0, 0.45);
+  --grid-line: rgba(110, 84, 255, 0.08);
   color-scheme: dark;
 }
 
@@ -67,17 +68,21 @@ body {
   background-color: var(--background);
   min-height: 100vh;
   min-height: 100dvh;
-  font-family: var(--font-body), "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--font-body), "Inter", ui-sans-serif, system-ui, sans-serif;
   overflow-x: clip;
   padding-left: env(safe-area-inset-left);
   padding-right: env(safe-area-inset-right);
   padding-bottom: env(safe-area-inset-bottom);
-  /* subtle research grid */
   background-image:
+    radial-gradient(
+      ellipse 70% 50% at 100% 0%,
+      color-mix(in srgb, var(--accent) 14%, transparent),
+      transparent 55%
+    ),
     linear-gradient(var(--grid-line) 1px, transparent 1px),
     linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
-  background-size: 48px 48px;
-  background-position: -1px -1px;
+  background-size: auto, 48px 48px, 48px 48px;
+  background-position: 0 0, -1px -1px, -1px -1px;
 }
 
 @layer components {
@@ -105,6 +110,7 @@ body {
   }
   .ui-btn-secondary:hover {
     background: var(--accent-soft);
+    border-color: var(--accent);
     color: var(--foreground);
   }
 
@@ -126,7 +132,7 @@ body {
   .ui-input {
     @apply w-full min-h-10 rounded-none border border-border bg-surface px-3 py-2.5
       font-mono text-sm text-foreground placeholder:text-muted
-      focus:border-foreground focus:outline-none focus:ring-1 focus:ring-[var(--ring)];
+      focus:border-accent focus:outline-none focus:ring-1 focus:ring-[var(--ring)];
   }
 
   .ui-badge {
@@ -137,14 +143,14 @@ body {
   .ui-chip {
     @apply inline-flex min-h-9 items-center rounded-none border border-border
       bg-surface px-3 py-1.5 font-mono text-[11px] font-medium uppercase tracking-[0.1em] text-muted
-      transition hover:border-foreground hover:text-foreground
-      data-[active=true]:border-foreground data-[active=true]:bg-accent
+      transition hover:border-accent hover:text-foreground
+      data-[active=true]:border-accent data-[active=true]:bg-accent
       data-[active=true]:text-[var(--accent-fg)];
   }
 
   .ui-link {
-    @apply font-medium text-foreground underline decoration-border underline-offset-4
-      hover:decoration-foreground;
+    @apply font-medium text-accent underline decoration-border underline-offset-4
+      hover:decoration-accent;
   }
 
   .ui-table-wrap {
@@ -163,7 +169,6 @@ body {
     @apply mt-2 max-w-2xl text-sm leading-relaxed text-muted;
   }
 
-  /* Research-lab meta labels (OUTPUT / SEED style) */
   .meta-label {
     @apply font-mono text-[10px] font-medium uppercase tracking-[0.18em] text-muted;
   }
@@ -185,7 +190,11 @@ body {
     position: absolute;
     inset: 0;
     background:
-      linear-gradient(135deg, transparent 40%, color-mix(in srgb, var(--foreground) 3%, transparent) 100%);
+      linear-gradient(
+        135deg,
+        transparent 35%,
+        color-mix(in srgb, var(--accent) 10%, transparent) 100%
+      );
     pointer-events: none;
   }
 }
@@ -202,11 +211,11 @@ body {
   }
 }
 
-/* Header connect controls */
+/* Header connect controls — compact on mobile, roomy from sm+ */
 .rk-connect-wrap {
   display: inline-flex;
   min-width: 0;
-  max-width: min(42vw, 9.5rem);
+  max-width: min(58vw, 13.5rem);
 }
 
 @media (min-width: 640px) {
@@ -220,9 +229,10 @@ body {
   align-items: center;
   justify-content: center;
   gap: 0.3rem;
-  height: 1.75rem;
-  min-height: 1.75rem;
-  padding: 0 0.55rem;
+  height: 2rem;
+  min-height: 2rem;
+  min-width: 2rem;
+  padding: 0 0.5rem;
   border-radius: 0;
   border: 1px solid var(--border);
   font-family: var(--font-mono), ui-monospace, monospace;
@@ -246,6 +256,21 @@ body {
   }
 }
 
+/* Square icon-only (network on mobile) */
+.rk-header-btn-icon {
+  width: 2rem;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+@media (min-width: 640px) {
+  .rk-header-btn-icon {
+    width: auto;
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+}
+
 .rk-header-btn-primary {
   background: var(--accent);
   border-color: transparent;
@@ -261,6 +286,22 @@ body {
 }
 .rk-header-btn-secondary:hover {
   background: var(--accent-soft);
+  border-color: var(--accent);
+}
+
+.rk-header-btn-network {
+  background: transparent;
+  color: var(--foreground);
+}
+.rk-header-btn-network:hover {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+}
+
+.rk-header-btn-warn {
+  background: color-mix(in srgb, var(--warning) 18%, transparent);
+  border-color: var(--warning);
+  color: var(--foreground);
 }
 
 .rk-header-btn-ghost {
@@ -268,39 +309,9 @@ body {
   color: var(--muted);
   padding-left: 0.4rem;
   padding-right: 0.4rem;
+  border-color: transparent;
 }
 .rk-header-btn-ghost:hover {
-  background: var(--accent-soft);
   color: var(--foreground);
-}
-
-.rk-header-btn-network {
   background: var(--accent-soft);
-  border-color: var(--border-strong);
-  color: var(--foreground);
-  gap: 0.35rem;
-  padding-left: 0.35rem;
-  padding-right: 0.45rem;
-  max-width: 7.5rem;
-}
-.rk-header-btn-network:hover {
-  border-color: var(--foreground);
-}
-@media (min-width: 640px) {
-  .rk-header-btn-network {
-    max-width: none;
-    padding-left: 0.45rem;
-    padding-right: 0.65rem;
-  }
-}
-
-.rk-header-btn-warn {
-  background: color-mix(in srgb, var(--warning) 12%, transparent);
-  border-color: color-mix(in srgb, var(--warning) 40%, transparent);
-  color: var(--warning);
-}
-
-[data-rk] [aria-modal="true"],
-[data-rk] [role="dialog"] {
-  z-index: 2147483646 !important;
 }

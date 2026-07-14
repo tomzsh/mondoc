@@ -8,7 +8,7 @@ import {
 
 /**
  * Compact RainbowKit header controls.
- * Always shows Monad logo on the network switch button (mobile has no chain name).
+ * Mobile: icon-only network + short account · Desktop: labels.
  */
 export function ConnectButton() {
   return (
@@ -45,7 +45,8 @@ export function ConnectButton() {
                       onClick={openConnectModal}
                       className="rk-header-btn rk-header-btn-primary"
                     >
-                      Connect
+                      <span className="sm:hidden">Connect</span>
+                      <span className="hidden sm:inline">Connect wallet</span>
                     </button>
                   );
                 }
@@ -57,58 +58,56 @@ export function ConnectButton() {
                       onClick={openChainModal}
                       className="rk-header-btn rk-header-btn-warn"
                     >
-                      Wrong network
+                      <span className="sm:hidden">Network</span>
+                      <span className="hidden sm:inline">Wrong network</span>
                     </button>
                   );
                 }
 
                 const isMonad = MONAD_CHAIN_IDS.has(chain.id);
-                const shortLabel = isMonad
-                  ? chain.id === 10143
+                const shortLabel =
+                  chain.id === 10143
                     ? "Testnet"
-                    : "Mainnet"
-                  : chain.name;
+                    : chain.id === 143
+                      ? "Mainnet"
+                      : chain.name;
 
                 return (
                   <>
                     <button
                       type="button"
                       onClick={openChainModal}
-                      className="rk-header-btn rk-header-btn-network"
+                      className="rk-header-btn rk-header-btn-network rk-header-btn-icon"
                       title={chain.name}
                       aria-label={`Network: ${chain.name}. Switch network`}
                     >
-                      {/* Always show logo — Monad custom chains often have no iconUrl */}
                       {isMonad ? (
-                        <MonadNetworkIcon size={18} />
+                        <MonadNetworkIcon size={16} />
                       ) : chain.hasIcon && chain.iconUrl ? (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img
                           alt=""
                           src={chain.iconUrl}
-                          className="h-[18px] w-[18px] rounded-full"
+                          className="h-4 w-4 rounded-full"
                           style={{ background: chain.iconBackground }}
                         />
                       ) : (
-                        <span className="inline-flex h-[18px] w-[18px] items-center justify-center rounded-full bg-accent text-[9px] font-bold text-white">
+                        <span className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-accent text-[8px] font-bold text-white">
                           ?
                         </span>
                       )}
-                      {/* Mobile: short label; desktop: full name */}
-                      <span className="max-w-[3.75rem] truncate sm:hidden">
+                      <span className="hidden max-w-[5.5rem] truncate sm:inline">
                         {shortLabel}
                       </span>
-                      <span className="hidden max-w-[5.5rem] truncate sm:inline">
-                        {chain.name}
-                      </span>
-                      <ChevronDown className="opacity-60" />
+                      <ChevronDown className="hidden opacity-60 sm:block" />
                     </button>
                     <button
                       type="button"
                       onClick={openAccountModal}
-                      className="rk-header-btn rk-header-btn-secondary"
+                      className="rk-header-btn rk-header-btn-secondary max-w-[5.5rem] sm:max-w-[8rem]"
+                      title={account.address}
                     >
-                      {account.displayName}
+                      <span className="truncate">{account.displayName}</span>
                     </button>
                   </>
                 );

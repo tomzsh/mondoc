@@ -1,8 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
-  <!-- MonDoc mark -->
-  <rect width="64" height="64" rx="0" fill="#0A0A0A"/>
-  <rect x="2" y="2" width="60" height="60" stroke="#F5F5F5" stroke-opacity="0.2" stroke-width="1.5"/>
-  <circle cx="32" cy="30" r="14" stroke="#F5F5F5" stroke-width="1.5"/>
-  <path d="M30 20h4v8h8v4h-8v8h-4v-8h-8v-4h8z" fill="#F5F5F5"/>
-  <path d="M14 48h8l2-4 3 8 3-12 2 8h12" stroke="#F5F5F5" stroke-width="1.5" opacity="0.6"/>
+  <!-- MonDoc mark · Monad primary #6E54FF / night #0E091C -->
+  <rect width="64" height="64" fill="#0E091C"/>
+  <rect x="2" y="2" width="60" height="60" stroke="#6E54FF" stroke-opacity="0.45" stroke-width="1.5"/>
+  <circle cx="32" cy="30" r="14" stroke="#6E54FF" stroke-width="1.5"/>
+  <path d="M30 20h4v8h8v4h-8v8h-4v-8h-8v-4h8z" fill="#FFFFFF"/>
+  <path d="M14 48h8l2-4 3 8 3-12 2 8h12" stroke="#85E6FF" stroke-width="1.5" opacity="0.85"/>
 </svg>

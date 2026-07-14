@@ -1,20 +1,24 @@
 import type { Metadata, Viewport } from "next";
-import { IBM_Plex_Sans, IBM_Plex_Mono } from "next/font/google";
+import { Inter, Roboto_Mono } from "next/font/google";
 import { Providers } from "@/components/providers";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import "./globals.css";
 
-const body = IBM_Plex_Sans({
+/** Brand kit: Inter (body) · Britti Sans not on Google Fonts */
+const body = Inter({
   subsets: ["latin"],
   variable: "--font-body",
   weight: ["400", "500", "600", "700"],
+  display: "swap",
 });
 
-const mono = IBM_Plex_Mono({
+/** Brand kit: Roboto Mono (labels, buttons, code) */
+const mono = Roboto_Mono({
   subsets: ["latin"],
   variable: "--font-mono",
-  weight: ["400", "500", "600"],
+  weight: ["400", "500", "600", "700"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -22,9 +26,24 @@ export const metadata: Metadata = {
   description:
     "MonDoc: clinical wallet diagnostics for Monad. Scan approvals, revoke risk, log cleanups onchain, earn a soulbound badge.",
   openGraph: {
-    title: "MonDoc — Monad",
+    title: "MonDoc — Monad Wallet Diagnostics",
     description:
-      "Research-grade approval scanning, one-click revoke, onchain cleanup proof.",
+      "Scan approvals, revoke risk, log cleanups onchain, earn a soulbound badge.",
+    images: [
+      {
+        url: "/brand/cover.jpg",
+        width: 1920,
+        height: 1080,
+        alt: "MonDoc — BuildAnything Spark hackathon cover",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "MonDoc — Monad Wallet Diagnostics",
+    description:
+      "Scan approvals, revoke risk, log cleanups onchain, earn a soulbound badge.",
+    images: ["/brand/cover.jpg"],
   },
   icons: {
     icon: "/brand/logo-mark.svg",
@@ -37,20 +56,18 @@ export const viewport: Viewport = {
   maximumScale: 5,
   viewportFit: "cover",
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#F4F3EF" },
-    { media: "(prefers-color-scheme: dark)", color: "#050505" },
+    { media: "(prefers-color-scheme: light)", color: "#F6F4FF" },
+    { media: "(prefers-color-scheme: dark)", color: "#0E091C" },
   ],
 };
 
-/** Default dark — research-lab aesthetic */
+/** Default dark — Monad brand night field (#0E091C) */
 const themeInitScript = `
 (function(){
   try {
     var k = 'mondoc-theme';
     var s = localStorage.getItem(k);
-    var d = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    // default dark when no preference stored (lab aesthetic)
-    var t = s === 'light' || s === 'dark' ? s : (d ? 'dark' : 'dark');
+    var t = s === 'light' || s === 'dark' ? s : 'dark';
     if (t === 'dark') document.documentElement.classList.add('dark');
     document.documentElement.style.colorScheme = t;
   } catch (e) {}

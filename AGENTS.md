@@ -32,7 +32,7 @@ Also read **[`.agents/skills/mondoc/SKILL.md`](.agents/skills/mondoc/SKILL.md)**
 ```
 apps/web                 Next.js 14 App Router · wagmi · RainbowKit · viem
   app/                   Routes: / · /scan · /history · /api/hypersync/*
-  components/            UI (research-lab monochrome brand)
+  components/            UI (Monad brand kit colors)
   hooks/                 useApprovals · useRevoke · useBadgeNft · …
   lib/scanner/           HyperSync + eth_getLogs approval scan
   lib/contracts/         ABIs + env-wired addresses
@@ -73,7 +73,7 @@ cast code 0xCCF8B0cd5CAF30617205989aa414750b4662e219 --rpc-url https://testnet-r
 3. **No address hallucination** — use `addresses/` skill + `cast code` / `eth_getCode`.
 4. **Gas on Monad** — users pay **gas_limit × price**, not gas used. Always estimate tightly (≤10% buffer). See `gas/` and `apps/web/lib/gas.ts`.
 5. **HyperSync token is server-only** — `ENVIO_API_TOKEN` in API routes; client uses `/api/hypersync/*`.
-6. **UI language is English**; brand is monochrome research-lab (not Monad purple).
+6. **UI language is English**; visual brand follows [Monad brand kit](https://www.monad.xyz/brand-and-media-kit) (primary `#6E54FF`).
 
 ## 5. Common commands
 

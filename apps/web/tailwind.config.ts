@@ -33,20 +33,19 @@ const config: Config = {
       fontFamily: {
         body: [
           "var(--font-body)",
-          "IBM Plex Sans",
+          "Inter",
           "ui-sans-serif",
           "system-ui",
           "sans-serif",
         ],
         mono: [
           "var(--font-mono)",
-          "IBM Plex Mono",
+          "Roboto Mono",
           "ui-monospace",
           "monospace",
         ],
       },
       borderRadius: {
-        // research-lab: sharp corners by default
         none: "0",
       },
     },
