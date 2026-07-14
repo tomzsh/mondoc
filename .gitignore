@@ -31,3 +31,4 @@ dist
 coverage
 *.tsbuildinfo
 apps/web/tsconfig.tsbuildinfo
+.vercel
