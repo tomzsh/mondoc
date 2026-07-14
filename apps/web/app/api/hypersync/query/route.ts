@@ -9,6 +9,12 @@ import { clientIp, rateLimit } from "@/lib/api/rateLimit";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
+const NO_STORE = {
+  "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
+  Pragma: "no-cache",
+};
 
 const MAX_TOPICS = 4;
 const MAX_TOPIC_LEN = 66; // 0x + 64 hex
@@ -30,7 +36,10 @@ export async function POST(req: Request) {
         { error: "Rate limit exceeded. Try again shortly." },
         {
           status: 429,
-          headers: { "Retry-After": String(limited.retryAfterSec) },
+          headers: {
+            ...NO_STORE,
+            "Retry-After": String(limited.retryAfterSec),
+          },
         },
       );
     }
@@ -84,15 +93,23 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Invalid fromBlock" }, { status: 400 });
     }
 
+    let toBlock: number | undefined;
     if (body.toBlock != null) {
-      const toBlock = Number(body.toBlock);
-      if (!Number.isFinite(toBlock) || toBlock < fromBlock) {
-        return NextResponse.json({ error: "Invalid toBlock" }, { status: 400 });
+      toBlock = Number(body.toBlock);
+      if (!Number.isFinite(toBlock)) {
+        return NextResponse.json(
+          { error: "Invalid toBlock" },
+          { status: 400, headers: NO_STORE },
+        );
+      }
+      // Stale tip vs next_block: clamp instead of 400 so pagination can recover
+      if (toBlock < fromBlock) {
+        toBlock = fromBlock;
       }
       if (toBlock - fromBlock > MAX_BLOCK_SPAN) {
         return NextResponse.json(
           { error: "Block range too large" },
-          { status: 400 },
+          { status: 400, headers: NO_STORE },
         );
       }
     }
@@ -133,13 +150,14 @@ export async function POST(req: Request) {
       },
     };
 
-    if (body.toBlock != null && Number.isFinite(body.toBlock)) {
-      payload.to_block = Number(body.toBlock) + 1;
+    if (toBlock != null && Number.isFinite(toBlock)) {
+      // HyperSync to_block is exclusive
+      payload.to_block = toBlock + 1;
     }
 
     const upstream = AbortSignal.any([
       req.signal,
-      AbortSignal.timeout(25_000),
+      AbortSignal.timeout(45_000),
     ]);
 
     const res = await fetch(`${base}/query`, {
@@ -147,7 +165,9 @@ export async function POST(req: Request) {
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
+        "Cache-Control": "no-cache",
       },
+      cache: "no-store",
       body: JSON.stringify(payload),
       signal: upstream,
     });
@@ -157,7 +177,7 @@ export async function POST(req: Request) {
       console.error("[hypersync/query] upstream", res.status, text.slice(0, 200));
       return NextResponse.json(
         { error: "Upstream log provider error" },
-        { status: 502 },
+        { status: 502, headers: NO_STORE },
       );
     }
 
@@ -167,11 +187,11 @@ export async function POST(req: Request) {
     } catch {
       return NextResponse.json(
         { error: "Invalid upstream response" },
-        { status: 502 },
+        { status: 502, headers: NO_STORE },
       );
     }
 
-    return NextResponse.json(json);
+    return NextResponse.json(json, { headers: NO_STORE });
   } catch (e) {
     const message = e instanceof Error ? e.message : String(e);
     if (
@@ -179,12 +199,21 @@ export async function POST(req: Request) {
       message.includes("AbortError") ||
       message.includes("TimeoutError")
     ) {
-      return NextResponse.json({ error: "Request timed out" }, { status: 504 });
+      return NextResponse.json(
+        { error: "Request timed out" },
+        { status: 504, headers: NO_STORE },
+      );
     }
     if (message === "Invalid topic") {
-      return NextResponse.json({ error: "Invalid topic" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Invalid topic" },
+        { status: 400, headers: NO_STORE },
+      );
     }
     console.error("[hypersync/query]", message);
-    return NextResponse.json({ error: "Internal error" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal error" },
+      { status: 500, headers: NO_STORE },
+    );
   }
 }

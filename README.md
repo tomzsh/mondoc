@@ -50,8 +50,8 @@ Sync Monad agent skills: `pnpm skills:sync`
 
 | Contract | Address |
 |---|---|
-| **Log** | [`0x530f8c879064f45dfD9dB797a790DD5c54763090`](https://testnet.monadexplorer.com/address/0x530f8c879064f45dfD9dB797a790DD5c54763090) |
-| **Badge** | [`0xCCF8B0cd5CAF30617205989aa414750b4662e219`](https://testnet.monadexplorer.com/address/0xCCF8B0cd5CAF30617205989aa414750b4662e219) |
+| **Log** (v3 batch) | [`0x433e9B7d88332207EFa8f98A463267bFd649F661`](https://testnet.monadexplorer.com/address/0x433e9B7d88332207EFa8f98A463267bFd649F661) |
+| **Badge** (manual mint) | [`0x57Fc8003a078d040E03E86fEb204630FE923038F`](https://testnet.monadexplorer.com/address/0x57Fc8003a078d040E03E86fEb204630FE923038F) |
 
 ERC-721 **MonDoc Cleanup Badge** (`MDOC`) with onchain `tokenURI` (JSON + embedded SVG image).
 

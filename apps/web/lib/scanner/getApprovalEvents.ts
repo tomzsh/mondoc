@@ -5,10 +5,9 @@
  * 1. Skip EOAs with nonce 0 (no txs → no approvals)
  * 2. Fetch Approval + ApprovalForAll logs in parallel
  * 3. Deduplicate (token, spender) keeping latest event
- * 4. Smart allowance resolution:
- *    - latest amount 0 → inactive (no eth_call)
- *    - maxUint256 → use event value (no eth_call)
- *    - else eth_call allowance()
+ * 4. Resolve active status:
+ *    - latest amount 0 / approved=false → inactive (skip RPC)
+ *    - else always live eth_call (revoke is approve(0); events can lag)
  * 5. Classify risk
  */
 
@@ -17,7 +16,6 @@ import {
   type PublicClient,
   type Hex,
   getAddress,
-  maxUint256,
   decodeEventLog,
   parseAbiItem,
   toEventSelector,
@@ -239,17 +237,20 @@ export async function scanApprovals(
     );
   }
 
-  // Prefer HyperSync height when enabled (avoids public RPC for latest block)
+  // Tip block: max(HyperSync height/archive, live RPC) so new txs are not missed
+  // when HyperSync /height lags (was causing next_block > toBlock → empty pages).
   let latest: bigint;
+  const rpcLatest = await readClient.getBlockNumber().catch(() => 0n);
   if (useHyper) {
     try {
       const { fetchHeightViaApi } = await import("./hypersync");
-      latest = BigInt(await fetchHeightViaApi(chainId, signal));
+      const hs = BigInt(await fetchHeightViaApi(chainId, signal));
+      latest = hs > rpcLatest ? hs : rpcLatest;
     } catch {
-      latest = await readClient.getBlockNumber();
+      latest = rpcLatest > 0n ? rpcLatest : await readClient.getBlockNumber();
     }
   } else {
-    latest = await readClient.getBlockNumber();
+    latest = rpcLatest > 0n ? rpcLatest : await readClient.getBlockNumber();
   }
 
   const fromBlock = Number(resolveFromBlock(latest, lookback));
@@ -320,7 +321,9 @@ export async function scanApprovals(
   );
   const erc20List = [...erc20Pairs.values()];
 
-  // Smart allowance resolution from latest events + live eth_call when needed
+  // Always live-check allowance when last event is non-zero. Skipping eth_call
+  // for maxUint256 caused revoked approvals (approve→0) to reappear when the
+  // revoke log was missing/lagging (common with HyperSync + short ranges).
   const erc20Settled = await mapPool(
     erc20List,
     concurrency,
@@ -328,20 +331,12 @@ export async function scanApprovals(
       // Latest Approval was 0 → inactive (no RPC)
       if (pair.lastAmount === 0n) return null;
 
-      let allowance: bigint;
-
-      // Unlimited from event → no eth_call (EIP-20: max never decreases via transferFrom)
-      if (pair.lastAmount !== undefined && pair.lastAmount === maxUint256) {
-        allowance = pair.lastAmount;
-      } else {
-        // Otherwise check live on-chain (may have been partially used)
-        allowance = await getErc20Allowance(
-          readClient,
-          pair.token,
-          owner,
-          pair.spender,
-        );
-      }
+      const allowance = await getErc20Allowance(
+        readClient,
+        pair.token,
+        owner,
+        pair.spender,
+      );
 
       if (allowance === 0n) return null;
 
@@ -373,22 +368,13 @@ export async function scanApprovals(
       // Latest ApprovalForAll was false → inactive
       if (pair.lastApproved === false) return null;
 
-      // True from event is not enough if later revoked off-range; prefer live check
-      // unless we scanned full history and last event is approved=true
-      let approved: boolean;
-      if (
-        pair.lastApproved === true &&
-        (lookback === null || lookback === 0)
-      ) {
-        approved = true;
-      } else {
-        approved = await getIsApprovedForAll(
-          readClient,
-          pair.token,
-          owner,
-          pair.operator,
-        );
-      }
+      // Always live-check — revoke may be outside lookback / indexer lag
+      const approved = await getIsApprovedForAll(
+        readClient,
+        pair.token,
+        owner,
+        pair.operator,
+      );
 
       if (!approved) return null;
 

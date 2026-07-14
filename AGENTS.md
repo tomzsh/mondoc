@@ -57,8 +57,8 @@ Source of truth: `packages/contracts/deployments.testnet.json` + `apps/web/.env.
 
 | Contract | Address |
 |---|---|
-| WalletDoctorLog | `0x530f8c879064f45dfD9dB797a790DD5c54763090` |
-| WalletDoctorBadge | `0xCCF8B0cd5CAF30617205989aa414750b4662e219` |
+| WalletDoctorLog (v3 · batchLogCleanup) | `0x433e9B7d88332207EFa8f98A463267bFd649F661` |
+| WalletDoctorBadge (v3 · manual mint only) | `0x57Fc8003a078d040E03E86fEb204630FE923038F` |
 
 Score/badge are **self-attested** (hackathon model). Badge has onchain `tokenURI` (JSON + SVG). Verify with:
 

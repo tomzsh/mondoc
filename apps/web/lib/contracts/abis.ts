@@ -12,6 +12,17 @@ export const walletDoctorLogAbi = [
   },
   {
     type: "function",
+    name: "batchLogCleanup",
+    stateMutability: "nonpayable",
+    inputs: [
+      { name: "spenders", type: "address[]" },
+      { name: "tokens", type: "address[]" },
+      { name: "finalScore", type: "uint256" },
+    ],
+    outputs: [],
+  },
+  {
+    type: "function",
     name: "currentScore",
     stateMutability: "view",
     inputs: [{ name: "wallet", type: "address" }],
@@ -69,6 +80,13 @@ export const walletDoctorLogAbi = [
   },
   {
     type: "function",
+    name: "MAX_BATCH",
+    stateMutability: "view",
+    inputs: [],
+    outputs: [{ name: "", type: "uint256" }],
+  },
+  {
+    type: "function",
     name: "VERSION",
     stateMutability: "view",
     inputs: [],
@@ -91,6 +109,16 @@ export const walletDoctorLogAbi = [
     inputs: [
       { name: "wallet", type: "address", indexed: true },
       { name: "newScore", type: "uint256", indexed: false },
+    ],
+  },
+  {
+    type: "event",
+    name: "BatchCleanupLogged",
+    inputs: [
+      { name: "wallet", type: "address", indexed: true },
+      { name: "count", type: "uint256", indexed: false },
+      { name: "scoreAfter", type: "uint256", indexed: false },
+      { name: "timestamp", type: "uint256", indexed: false },
     ],
   },
 ] as const;

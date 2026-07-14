@@ -22,7 +22,8 @@ export function useApprovals(enabled = true) {
   return useQuery<ClassifiedApproval[]>({
     queryKey: ["approvals", chainId, address, scanRangeId],
     enabled: Boolean(enabled && isConnected && address && client && chainId),
-    staleTime: 60_000,
+    // Short stale time so Rescan after seed/revoke picks up new logs quickly
+    staleTime: 15_000,
     gcTime: 10 * 60_000,
     // Important: allow switching range while a long "all" scan is running
     // TanStack Query will abort the previous query via `signal`

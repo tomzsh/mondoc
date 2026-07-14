@@ -1,6 +1,7 @@
 "use client";
 
 import { useBadgeNft } from "@/hooks/useBadgeNft";
+import { useRevoke } from "@/hooks/useRevoke";
 import { scoreColor, scoreLabel } from "@/lib/score/calculateScore";
 import { cn } from "@/lib/utils";
 import { getExplorerAddressUrl } from "@/lib/wagmi";
@@ -9,9 +10,11 @@ import { MedalMilitary } from "@phosphor-icons/react";
 
 /**
  * Soulbound Cleanup Badge NFT + onchain score panel.
+ * Mint is explicit (button) — never auto-triggered on each revoke.
  */
 export function BadgeNftCard({ className }: { className?: string }) {
   const { chainId } = useAccount();
+  const { mintBadge, busy } = useRevoke();
   const {
     hasBadge,
     onchainScore,
@@ -22,6 +25,12 @@ export function BadgeNftCard({ className }: { className?: string }) {
     configured,
     loading,
   } = useBadgeNft();
+
+  const canMint =
+    !hasBadge &&
+    onchainScore != null &&
+    onchainScore >= threshold &&
+    !loading;
 
   const displayScore = hasBadge
     ? (scoreAtMint ?? onchainScore)
@@ -133,16 +142,27 @@ export function BadgeNftCard({ className }: { className?: string }) {
             />
           </dl>
 
-          {!hasBadge && onchainScore != null && onchainScore >= threshold && (
-            <p className="border border-border bg-accent-soft px-3 py-2 font-mono text-[11px] uppercase tracking-[0.1em] text-foreground">
-              Score ≥ {threshold} — badge ready after next logCleanup
-            </p>
+          {canMint && (
+            <div className="space-y-2">
+              <p className="border border-border bg-accent-soft px-3 py-2 font-mono text-[11px] uppercase tracking-[0.1em] text-foreground">
+                Score ≥ {threshold} — ready to mint
+              </p>
+              <button
+                type="button"
+                disabled={busy}
+                onClick={() => void mintBadge()}
+                className="ui-btn !min-h-10 w-full sm:!w-auto"
+              >
+                {busy ? "Minting…" : "Mint soulbound badge"}
+              </button>
+            </div>
           )}
           {!hasBadge &&
             (onchainScore == null || onchainScore < threshold) && (
               <p className="text-sm text-muted">
                 Revoke risky approvals and log cleanups until onchain score
-                reaches {threshold} to mint the soulbound NFT.
+                reaches {threshold}, then mint the soulbound NFT here (not on
+                every revoke).
               </p>
             )}
           {hasBadge && (

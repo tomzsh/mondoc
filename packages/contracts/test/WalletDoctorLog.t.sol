@@ -115,6 +115,83 @@ contract WalletDoctorLogTest is Test {
     }
 
     function test_Version() public view {
-        assertEq(logContract.VERSION(), 2);
+        assertEq(logContract.VERSION(), 3);
+    }
+
+    function test_BatchLogCleanup_RecordsAllAndSingleScore() public {
+        address spender2 = makeAddr("spender2");
+        address token2 = makeAddr("token2");
+
+        address[] memory spenders = new address[](3);
+        address[] memory tokens = new address[](3);
+        spenders[0] = spender;
+        spenders[1] = spender2;
+        spenders[2] = spender;
+        tokens[0] = token;
+        tokens[1] = token2;
+        tokens[2] = token2;
+
+        vm.prank(alice);
+        logContract.batchLogCleanup(spenders, tokens, 88);
+
+        assertEq(logContract.currentScore(alice), 88);
+        assertEq(logContract.historyLength(alice), 3);
+        assertEq(logContract.cleanupCount(alice), 3);
+
+        WalletDoctorLog.CleanupEvent[] memory page = logContract.getHistoryPage(alice, 0, 10);
+        assertEq(page.length, 3);
+        assertEq(page[0].scoreAfter, 88);
+        assertEq(page[2].token, token2);
+    }
+
+    function test_BatchLogCleanup_RevertsEmpty() public {
+        address[] memory spenders = new address[](0);
+        address[] memory tokens = new address[](0);
+        vm.prank(alice);
+        vm.expectRevert(WalletDoctorLog.EmptyBatch.selector);
+        logContract.batchLogCleanup(spenders, tokens, 50);
+    }
+
+    function test_BatchLogCleanup_RevertsLengthMismatch() public {
+        address[] memory spenders = new address[](2);
+        address[] memory tokens = new address[](1);
+        spenders[0] = spender;
+        spenders[1] = spender;
+        tokens[0] = token;
+        vm.prank(alice);
+        vm.expectRevert(WalletDoctorLog.LengthMismatch.selector);
+        logContract.batchLogCleanup(spenders, tokens, 50);
+    }
+
+    function test_BatchLogCleanup_RevertsTooLarge() public {
+        uint256 n = logContract.MAX_BATCH() + 1;
+        address[] memory spenders = new address[](n);
+        address[] memory tokens = new address[](n);
+        for (uint256 i = 0; i < n; i++) {
+            spenders[i] = spender;
+            tokens[i] = token;
+        }
+        vm.prank(alice);
+        vm.expectRevert(
+            abi.encodeWithSelector(WalletDoctorLog.BatchTooLarge.selector, n, 25)
+        );
+        logContract.batchLogCleanup(spenders, tokens, 50);
+    }
+
+    function test_BatchLogCleanup_EmitsBatchEvent() public {
+        address[] memory spenders = new address[](2);
+        address[] memory tokens = new address[](2);
+        spenders[0] = spender;
+        spenders[1] = spender;
+        tokens[0] = token;
+        tokens[1] = token;
+
+        vm.expectEmit(true, false, false, true);
+        emit WalletDoctorLog.BatchCleanupLogged(alice, 2, 91, block.timestamp);
+        vm.expectEmit(true, false, false, true);
+        emit WalletDoctorLog.ScoreUpdated(alice, 91);
+
+        vm.prank(alice);
+        logContract.batchLogCleanup(spenders, tokens, 91);
     }
 }

@@ -64,10 +64,10 @@ function formatLog(log: HypersyncLog): RawLog | null {
     address: getAddress(log.address),
     topics,
     data: (log.data ?? "0x") as Hex,
-    blockNumber: log.block_number,
+    blockNumber: Number(log.block_number),
     transactionHash: log.transaction_hash as `0x${string}`,
-    logIndex: log.log_index ?? 0,
-    transactionIndex: log.transaction_index ?? 0,
+    logIndex: Number(log.log_index ?? 0),
+    transactionIndex: Number(log.transaction_index ?? 0),
   };
 }
 
@@ -84,9 +84,18 @@ function extractLogs(data: HypersyncQueryResponse["data"]): HypersyncLog[] {
   return out;
 }
 
+/** Browser/server fetch — never cache tip or log pages. */
+const noStore: RequestInit = {
+  cache: "no-store",
+  headers: { "Cache-Control": "no-cache" },
+};
+
 /**
  * Client-driven HyperSync pagination through /api/hypersync/query.
  * Token never reaches the browser; progress updates per page.
+ *
+ * Important: HyperSync `/height` can lag `archive_height` from query pages.
+ * We grow `toBlock` to archive tip so new seed txs are not skipped.
  */
 export async function fetchLogsViaApi(
   chainId: number,
@@ -95,20 +104,23 @@ export async function fetchLogsViaApi(
   onProgress?: (msg: string) => void,
 ): Promise<RawLog[]> {
   let fromBlock = filter.fromBlock;
+  /** Inclusive tip — may extend when archive_height is ahead of requested toBlock */
+  let tip = filter.toBlock;
   const results: RawLog[] = [];
   let page = 0;
-  const span = Math.max(1, filter.toBlock - filter.fromBlock + 1);
+  const originFrom = filter.fromBlock;
 
   while (true) {
     if (signal?.aborted) {
       throw new DOMException("Scan aborted", "AbortError");
     }
 
+    // Never query an inverted range (stale tip vs next_block)
+    if (fromBlock > tip) break;
+
     page++;
-    const scanned = Math.min(
-      span,
-      Math.max(0, fromBlock - filter.fromBlock),
-    );
+    const span = Math.max(1, tip - originFrom + 1);
+    const scanned = Math.min(span, Math.max(0, fromBlock - originFrom));
     const pct = Math.min(99, Math.round((scanned / span) * 100));
     onProgress?.(
       `HyperSync ${pct}% · page ${page} · ${results.length} logs · block ${fromBlock.toLocaleString()}…`,
@@ -116,11 +128,15 @@ export async function fetchLogsViaApi(
 
     const res = await fetch("/api/hypersync/query", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      ...noStore,
+      headers: {
+        "Content-Type": "application/json",
+        "Cache-Control": "no-cache",
+      },
       body: JSON.stringify({
         chainId,
         fromBlock,
-        toBlock: filter.toBlock,
+        toBlock: tip,
         topics: filter.topics,
         address: filter.address,
       }),
@@ -143,17 +159,28 @@ export async function fetchLogsViaApi(
     for (const raw of extractLogs(json.data)) {
       const formatted = formatLog(raw);
       if (!formatted) continue;
-      if (formatted.blockNumber < filter.fromBlock) continue;
-      if (formatted.blockNumber > filter.toBlock) continue;
+      if (formatted.blockNumber < originFrom) continue;
       results.push(formatted);
     }
 
-    const next = json.next_block;
-    const archive = json.archive_height;
+    const next =
+      typeof json.next_block === "number" ? json.next_block : undefined;
+    const archive =
+      typeof json.archive_height === "number"
+        ? json.archive_height
+        : undefined;
+
+    // Archive tip is often ahead of /height — extend scan window
+    if (archive != null && archive > tip) {
+      tip = archive;
+    }
 
     if (next == null) break;
-    if (next > filter.toBlock) break;
-    if (archive != null && next > archive) break;
+
+    // Finished requested range (and archive not ahead)
+    if (next > tip) break;
+
+    // No forward progress
     if (next <= fromBlock) break;
 
     fromBlock = next;
@@ -165,38 +192,108 @@ export async function fetchLogsViaApi(
   return results;
 }
 
+/**
+ * Latest indexable block. Prefer max(height, archive_height) and never use
+ * cached responses — a stale tip makes pagination stop before new txs.
+ */
 export async function fetchHeightViaApi(
   chainId: number,
   signal?: AbortSignal,
 ): Promise<number> {
   const res = await fetch(`/api/hypersync/height?chainId=${chainId}`, {
+    ...noStore,
     signal,
   });
   if (!res.ok) {
     throw new Error(`HyperSync height proxy failed (${res.status})`);
   }
-  const json = (await res.json()) as { height: number };
-  return json.height;
+  const json = (await res.json()) as {
+    height?: number;
+    archive_height?: number;
+  };
+  const height = Number(json.height);
+  const archive =
+    json.archive_height != null ? Number(json.archive_height) : NaN;
+  const candidates = [height, archive].filter((n) => Number.isFinite(n) && n > 0);
+  if (candidates.length === 0) {
+    throw new Error("HyperSync height missing");
+  }
+  return Math.max(...candidates);
 }
 
 export async function getHypersyncHeight(
   chainId: number,
   apiToken: string,
   signal?: AbortSignal,
-): Promise<number> {
+): Promise<{ height: number; archive_height?: number }> {
   const base = getHypersyncBaseUrl(chainId);
   if (!base) throw new Error(`HyperSync not supported for chain ${chainId}`);
 
   const res = await fetch(`${base}/height`, {
-    headers: { Authorization: `Bearer ${apiToken}` },
+    headers: {
+      Authorization: `Bearer ${apiToken}`,
+      "Cache-Control": "no-cache",
+    },
+    cache: "no-store",
     signal,
   });
   if (!res.ok) {
     throw new Error(`HyperSync height HTTP ${res.status}`);
   }
-  const json = (await res.json()) as { height?: number };
+  const json = (await res.json()) as {
+    height?: number;
+    archive_height?: number;
+  };
   if (typeof json.height !== "number") {
     throw new Error("HyperSync height missing");
   }
-  return json.height;
+  return {
+    height: json.height,
+    archive_height:
+      typeof json.archive_height === "number"
+        ? json.archive_height
+        : undefined,
+  };
+}
+
+/**
+ * Probe archive tip via a tiny query — `/height` can lag behind archive_height.
+ */
+export async function probeHypersyncArchiveHeight(
+  chainId: number,
+  apiToken: string,
+  signal?: AbortSignal,
+): Promise<number | null> {
+  const base = getHypersyncBaseUrl(chainId);
+  if (!base) return null;
+
+  // Minimal query: empty log match from a recent window is enough to read archive_height
+  const payload = {
+    from_block: 0,
+    // limit work — we only need response metadata
+    logs: [{ topics: [["0x0000000000000000000000000000000000000000000000000000000000000000"]] }],
+    field_selection: { log: ["block_number"] },
+    max_num_logs: 1,
+  };
+
+  try {
+    const res = await fetch(`${base}/query`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiToken}`,
+        "Cache-Control": "no-cache",
+      },
+      cache: "no-store",
+      body: JSON.stringify(payload),
+      signal,
+    });
+    if (!res.ok) return null;
+    const json = (await res.json()) as { archive_height?: number };
+    return typeof json.archive_height === "number"
+      ? json.archive_height
+      : null;
+  } catch {
+    return null;
+  }
 }

@@ -2,16 +2,23 @@
   "chainId": 10143,
   "network": "monad-testnet",
   "deployer": "0x23947730B347A3d55e1eAc1d04d007dB29e818d9",
-  "WalletDoctorLog": "0x530f8c879064f45dfD9dB797a790DD5c54763090",
-  "WalletDoctorBadge": "0xCCF8B0cd5CAF30617205989aa414750b4662e219",
+  "WalletDoctorLog": "0x433e9B7d88332207EFa8f98A463267bFd649F661",
+  "WalletDoctorBadge": "0x57Fc8003a078d040E03E86fEb204630FE923038F",
   "rpc": "https://testnet-rpc.monad.xyz",
+  "version": 3,
+  "features": {
+    "batchLogCleanup": true,
+    "maxBatch": 25,
+    "badgeAutoMint": false
+  },
   "explorer": {
-    "log": "https://testnet.monadexplorer.com/address/0x530f8c879064f45dfD9dB797a790DD5c54763090",
-    "badge": "https://testnet.monadexplorer.com/address/0xCCF8B0cd5CAF30617205989aa414750b4662e219"
+    "log": "https://testnet.monadexplorer.com/address/0x433e9B7d88332207EFa8f98A463267bFd649F661",
+    "badge": "https://testnet.monadexplorer.com/address/0x57Fc8003a078d040E03E86fEb204630FE923038F"
   },
   "badge": {
     "name": "MonDoc Cleanup Badge",
     "symbol": "MDOC",
-    "metadata": "onchain tokenURI (JSON + SVG)"
+    "metadata": "onchain tokenURI (JSON + SVG)",
+    "mint": "explicit only — never after each revoke"
   }
 }

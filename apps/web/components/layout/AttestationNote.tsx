@@ -13,9 +13,10 @@ export function AttestationNote({ className }: { className?: string }) {
       {" · "}
       Onchain scores and the Cleanup Badge are{" "}
       <strong className="font-semibold text-foreground">self-attested</strong>{" "}
-      via <code className="text-foreground">logCleanup</code> after you revoke.
-      MonDoc never custodies funds. Badge mint requires score ≥ 80 and is
-      soulbound to your wallet.
+      via <code className="text-foreground">logCleanup</code> /{" "}
+      <code className="text-foreground">batchLogCleanup</code> after you revoke.
+      Multi-revoke logs once in a batch. Badge mint is optional (score ≥ 80) from
+      the Badge panel only — never auto-minted after revokes.
     </aside>
   );
 }

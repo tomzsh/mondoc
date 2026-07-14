@@ -97,17 +97,42 @@ export function ApprovalTable({ approvals }: { approvals: ClassifiedApproval[] }
             >
               {approvalsLoading ? "Scanning…" : "Rescan"}
             </button>
+            {filtered.length > 0 && (
+              <button
+                type="button"
+                disabled={busy || approvalsLoading}
+                onClick={() => {
+                  if (selected.length === filtered.length) {
+                    clearSelected();
+                  } else {
+                    // select all filtered rows
+                    const {
+                      setSelected,
+                    } = useUiStore.getState();
+                    setSelected(filtered.map((a) => rowKey(a)));
+                  }
+                }}
+                className="ui-btn-secondary !min-h-9 text-xs sm:!w-auto"
+              >
+                {selected.length === filtered.length && selected.length > 0
+                  ? "Clear selection"
+                  : "Select all"}
+              </button>
+            )}
             {selected.length > 0 && (
               <button
                 type="button"
                 disabled={busy}
                 onClick={() => {
-                  void revokeMany(selected, approvals, cleanupCount);
+                  const batch = [...selected];
                   clearSelected();
+                  void revokeMany(batch, approvals, cleanupCount);
                 }}
                 className="ui-btn-danger !min-h-9 text-xs sm:!w-auto"
               >
-                Revoke {selected.length} selected
+                {busy
+                  ? "Revoking…"
+                  : `Revoke ${selected.length} selected`}
               </button>
             )}
           </div>

@@ -128,7 +128,7 @@ contract WalletDoctorBadgeTest is Test {
     }
 
     function test_Version() public view {
-        assertEq(badge.VERSION(), 2);
-        assertEq(logContract.VERSION(), 2);
+        assertEq(badge.VERSION(), 3);
+        assertEq(logContract.VERSION(), 3);
     }
 }

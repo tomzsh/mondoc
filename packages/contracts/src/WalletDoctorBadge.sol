@@ -10,13 +10,14 @@ interface IWalletDoctorLog {
 }
 
 /// @title WalletDoctorBadge — MonDoc Cleanup Badge (soulbound ERC-721)
-/// @notice Minted when self-attested score ≥ threshold. Includes onchain metadata + SVG.
+/// @notice Optional explicit mint when self-attested score ≥ threshold.
+/// @dev Never called by WalletDoctorLog. Frontend must NOT auto-mint after each revoke.
 contract WalletDoctorBadge is ERC721 {
     using Strings for uint256;
 
     IWalletDoctorLog public immutable logContract;
     uint256 public constant SCORE_THRESHOLD = 80;
-    uint256 public constant VERSION = 2;
+    uint256 public constant VERSION = 3;
 
     uint256 private _nextTokenId;
     mapping(address => bool) public hasBadge;
