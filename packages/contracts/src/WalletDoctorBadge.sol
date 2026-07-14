@@ -9,9 +9,8 @@ interface IWalletDoctorLog {
     function currentScore(address wallet) external view returns (uint256);
 }
 
-/// @title WalletDoctorBadge (hackathon v2)
-/// @notice Soulbound ERC-721 minted when self-attested score ≥ threshold.
-/// @dev Mint only by the wallet itself. Stores scoreAtMint for dashboard reads.
+/// @title WalletDoctorBadge — MonDoc Cleanup Badge (soulbound ERC-721)
+/// @notice Minted when self-attested score ≥ threshold. Includes onchain metadata + SVG.
 contract WalletDoctorBadge is ERC721 {
     using Strings for uint256;
 
@@ -60,22 +59,55 @@ contract WalletDoctorBadge is ERC721 {
         emit BadgeMinted(wallet, tokenId, score);
     }
 
+    /// @notice ERC-721 metadata (JSON + embedded SVG) as data URI.
     function tokenURI(uint256 tokenId) public view override returns (string memory) {
         _requireOwned(tokenId);
         uint256 score = scoreAtMint[tokenId];
-        string memory name = string.concat("MonDoc Badge #", tokenId.toString());
-        string memory description =
-            "Soulbound MonDoc cleanup badge on Monad. Score is self-attested via MonDoc Log (hackathon demo).";
+        string memory scoreStr = score.toString();
+        string memory idStr = tokenId.toString();
+
+        string memory image = Base64.encode(bytes(_buildSvg(scoreStr, idStr)));
+
         string memory json = string.concat(
-            '{"name":"',
-            name,
-            '","description":"',
-            description,
-            '","attributes":[{"trait_type":"scoreAtMint","value":',
-            score.toString(),
-            '},{"trait_type":"soulbound","value":"true"},{"trait_type":"version","value":2}]}'
+            '{"name":"MonDoc Badge #',
+            idStr,
+            '","description":"Soulbound MonDoc cleanup badge on Monad. Score is self-attested via MonDoc Log after the owner revokes risky approvals. Non-transferable.",',
+            '"image":"data:image/svg+xml;base64,',
+            image,
+            '",',
+            '"attributes":[',
+            '{"trait_type":"scoreAtMint","value":',
+            scoreStr,
+            "},",
+            '{"trait_type":"soulbound","value":"true"},',
+            '{"trait_type":"version","value":',
+            VERSION.toString(),
+            "},",
+            '{"trait_type":"network","value":"Monad"},',
+            '{"trait_type":"project","value":"MonDoc"}',
+            "]}"
         );
+
         return string.concat("data:application/json;base64,", Base64.encode(bytes(json)));
+    }
+
+    function _buildSvg(string memory scoreStr, string memory idStr) internal pure returns (string memory) {
+        // Minimal monochrome clinical badge (research-lab aesthetic)
+        return string.concat(
+            '<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">',
+            '<rect width="512" height="512" fill="#0a0a0a"/>',
+            '<rect x="24" y="24" width="464" height="464" fill="none" stroke="#f2f2f2" stroke-width="2" opacity="0.35"/>',
+            '<circle cx="256" cy="220" r="88" fill="none" stroke="#f2f2f2" stroke-width="3"/>',
+            '<path d="M244 172h24v36h36v24h-36v36h-24v-36h-36v-24h36z" fill="#f2f2f2"/>',
+            '<text x="256" y="360" text-anchor="middle" fill="#f2f2f2" font-family="ui-monospace,monospace" font-size="28" letter-spacing="6">MONDOC</text>',
+            '<text x="256" y="400" text-anchor="middle" fill="#8a8a8a" font-family="ui-monospace,monospace" font-size="18" letter-spacing="3">SCORE ',
+            scoreStr,
+            "</text>",
+            '<text x="256" y="440" text-anchor="middle" fill="#6e6e6e" font-family="ui-monospace,monospace" font-size="14" letter-spacing="2">#',
+            idStr,
+            " / SOULBOUND</text>",
+            "</svg>"
+        );
     }
 
     function _update(address to, uint256 tokenId, address auth)

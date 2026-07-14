@@ -1,10 +1,12 @@
 {
   "chainId": 10143,
+  "network": "monad-testnet",
   "wallet": "0x23947730B347A3d55e1eAc1d04d007dB29e818d9",
+  "note": "Latest SeedTestApprovals run — use MonDoc Scan → All history to revoke",
   "tokens": {
-    "mdUSD": "0x47BAC252a5B8980D7b2C1E50C47Db308bB63c7BA",
-    "mdETH": "0xdAECD583Db3CF579a8c8600A52aAd1a09e7bEB87",
-    "mdNFT": "0x5Ff62c5074857c12b21f390A2B89aF0164Fb1a20"
+    "mdUSD": "0xeB13fAa7082ad6AFD20be5aBD91af0757CD1B8D6",
+    "mdETH": "0x10b8323569C758Ca7aDcEf81e648cD2Fd80ac891",
+    "mdNFT": "0x653c330dc9Db30888e6Ea1a2C09Fc3DaE8533c69"
   },
   "approvals": [
     {

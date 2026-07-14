@@ -46,16 +46,23 @@ Deploy contracts: `pnpm deploy:testnet`
 Seed demo approvals: `pnpm seed:approvals`  
 Sync Monad agent skills: `pnpm skills:sync`
 
-## Deployed contracts (Monad Testnet · v2)
+## Deployed contracts (Monad Testnet · MonDoc badge + metadata)
 
 | Contract | Address |
 |---|---|
-| **Log** | [`0x33926537818aB3113cEE97311CC32Bee385C02b5`](https://testnet.monadexplorer.com/address/0x33926537818aB3113cEE97311CC32Bee385C02b5) |
-| **Badge** | [`0xa1aC20EaBd9db2F22eFad97c704A919b83E98e54`](https://testnet.monadexplorer.com/address/0xa1aC20EaBd9db2F22eFad97c704A919b83E98e54) |
+| **Log** | [`0x530f8c879064f45dfD9dB797a790DD5c54763090`](https://testnet.monadexplorer.com/address/0x530f8c879064f45dfD9dB797a790DD5c54763090) |
+| **Badge** | [`0xCCF8B0cd5CAF30617205989aa414750b4662e219`](https://testnet.monadexplorer.com/address/0xCCF8B0cd5CAF30617205989aa414750b4662e219) |
+
+ERC-721 **MonDoc Cleanup Badge** (`MDOC`) with onchain `tokenURI` (JSON + embedded SVG image).
+
 
 ## Agents
 
 See [`AGENTS.md`](./AGENTS.md). Start with local MONSKILLS (`monskill` → `mondoc` project skill).
+
+## Product requirements
+
+See [`mondoc-prd.md`](./mondoc-prd.md) — English PRD aligned with the shipped MonDoc app.
 
 ## License
 

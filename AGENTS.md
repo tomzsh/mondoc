@@ -57,13 +57,13 @@ Source of truth: `packages/contracts/deployments.testnet.json` + `apps/web/.env.
 
 | Contract | Address |
 |---|---|
-| WalletDoctorLog | `0x33926537818aB3113cEE97311CC32Bee385C02b5` |
-| WalletDoctorBadge | `0xa1aC20EaBd9db2F22eFad97c704A919b83E98e54` |
+| WalletDoctorLog | `0x530f8c879064f45dfD9dB797a790DD5c54763090` |
+| WalletDoctorBadge | `0xCCF8B0cd5CAF30617205989aa414750b4662e219` |
 
-Score/badge are **self-attested** (hackathon model). Verify with:
+Score/badge are **self-attested** (hackathon model). Badge has onchain `tokenURI` (JSON + SVG). Verify with:
 
 ```bash
-cast code 0x33926537818aB3113cEE97311CC32Bee385C02b5 --rpc-url https://testnet-rpc.monad.xyz
+cast code 0xCCF8B0cd5CAF30617205989aa414750b4662e219 --rpc-url https://testnet-rpc.monad.xyz
 ```
 
 ## 4. Hard rules
