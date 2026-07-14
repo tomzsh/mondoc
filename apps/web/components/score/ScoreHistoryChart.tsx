@@ -9,7 +9,7 @@ interface Props {
 export function ScoreHistoryChart({ history }: Props) {
   if (!history.length) {
     return (
-      <div className="ui-card flex min-h-[8rem] items-center justify-center border-dashed px-4 py-8 text-center text-sm text-muted sm:h-40">
+      <div className="flex min-h-[8rem] items-center justify-center border border-dashed border-border px-4 py-8 text-center text-sm text-muted sm:h-40">
         No onchain score history yet
       </div>
     );
@@ -34,34 +34,36 @@ export function ScoreHistoryChart({ history }: Props) {
     .join(" ");
 
   return (
-    <div className="ui-card p-4 sm:p-5">
-      <div className="mb-2 text-xs font-medium uppercase tracking-wide text-muted">
-        Score after cleanup
-      </div>
-      <svg viewBox={`0 0 ${w} ${h}`} className="h-28 w-full sm:h-32" preserveAspectRatio="none">
+    <div className="border border-border bg-background p-4 sm:p-5">
+      <div className="section-kicker mb-3">Score after cleanup</div>
+      <svg
+        viewBox={`0 0 ${w} ${h}`}
+        className="h-28 w-full sm:h-32"
+        preserveAspectRatio="none"
+      >
         <path
           d={path}
           fill="none"
-          stroke="#6E54FF"
-          strokeWidth="2.5"
-          strokeLinejoin="round"
-          strokeLinecap="round"
+          stroke="var(--foreground)"
+          strokeWidth="1.75"
+          strokeLinejoin="miter"
+          strokeLinecap="square"
         />
         {coords.map((c, i) => (
           <circle
             key={i}
             cx={c.x}
             cy={c.y}
-            r="3.5"
-            fill="#6E54FF"
+            r="2.5"
+            fill="var(--foreground)"
             stroke="var(--surface)"
-            strokeWidth="2"
+            strokeWidth="1.5"
           />
         ))}
       </svg>
-      <div className="mt-1 flex justify-between text-[11px] text-muted">
+      <div className="mt-2 flex justify-between font-mono text-[10px] uppercase tracking-[0.12em] text-muted">
         <span>Start</span>
-        <span>Latest: {scores[scores.length - 1]}</span>
+        <span>Latest · {scores[scores.length - 1]}</span>
       </div>
     </div>
   );

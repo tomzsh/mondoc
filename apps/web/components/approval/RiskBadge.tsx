@@ -1,11 +1,5 @@
-import { cn } from "@/lib/utils";
 import type { RiskLevel } from "@/lib/scanner/classifyRisk";
-
-const STYLES: Record<RiskLevel, string> = {
-  high: "bg-danger/10 text-danger",
-  medium: "bg-warning/15 text-warning",
-  low: "bg-success/10 text-success",
-};
+import { cn } from "@/lib/utils";
 
 const LABELS: Record<RiskLevel, string> = {
   high: "High",
@@ -13,8 +7,22 @@ const LABELS: Record<RiskLevel, string> = {
   low: "Low",
 };
 
-export function RiskBadge({ risk, className }: { risk: RiskLevel; className?: string }) {
+const STYLES: Record<RiskLevel, string> = {
+  high: "border-danger text-danger",
+  medium: "border-warning text-warning",
+  low: "border-success text-success",
+};
+
+export function RiskBadge({
+  risk,
+  className,
+}: {
+  risk: RiskLevel;
+  className?: string;
+}) {
   return (
-    <span className={cn("ui-badge", STYLES[risk], className)}>{LABELS[risk]}</span>
+    <span className={cn("ui-badge", STYLES[risk], className)}>
+      {LABELS[risk]}
+    </span>
   );
 }

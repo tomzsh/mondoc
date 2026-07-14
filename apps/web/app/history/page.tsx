@@ -10,12 +10,13 @@ import { ScoreHistoryChart } from "@/components/score/ScoreHistoryChart";
 
 export default function HistoryPage() {
   return (
-    <div className="space-y-5 sm:space-y-6">
+    <div className="space-y-6 sm:space-y-8">
       <div>
-        <h1 className="page-title">Onchain Cleanup History</h1>
+        <p className="section-kicker">Protocol · History</p>
+        <h1 className="page-title mt-2">Onchain Cleanup History</h1>
         <p className="page-desc">
           Successful revokes can be recorded on{" "}
-          <code className="rounded bg-accent-soft px-1.5 py-0.5 font-mono text-[12px] text-accent">
+          <code className="border border-border bg-accent-soft px-1.5 py-0.5 font-mono text-[12px]">
             WalletDoctorLog
           </code>{" "}
           — permanent and verifiable by anyone.

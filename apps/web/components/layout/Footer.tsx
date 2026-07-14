@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { AppLogo } from "@/components/brand/AppLogo";
+import { AppWordmark } from "@/components/brand/AppLogo";
 
 const TWITTER = "https://x.com/0xTomzsh";
 const GITHUB = "https://github.com/tomzsh/wallet-doctor";
@@ -7,52 +7,64 @@ const GITHUB = "https://github.com/tomzsh/wallet-doctor";
 export function Footer() {
   return (
     <footer className="mt-auto border-t border-border bg-surface">
-      <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-8 sm:flex-row sm:items-center sm:justify-between sm:px-6">
-        <div className="space-y-2">
-          <div className="flex items-center gap-2 text-sm font-semibold">
-            <AppLogo size={28} />
-            Wallet Doctor
-          </div>
-          <p className="max-w-sm text-xs leading-relaxed text-muted">
-            Never custodies funds. Revoke goes straight to the token contract.
-            Onchain cleanup proof on Monad.
+      <div className="mx-auto grid max-w-6xl gap-8 px-4 py-10 sm:grid-cols-[1.2fr_1fr] sm:px-6 sm:py-12">
+        <div className="space-y-4">
+          <AppWordmark size={32} showTagline />
+          <p className="max-w-md text-sm leading-relaxed text-muted">
+            Clinical diagnostics for onchain wallets. We never custody funds —
+            revokes hit the token contract directly. Cleanup proof is written
+            onchain on Monad.
           </p>
+          <div className="flex flex-wrap gap-4 font-mono text-[10px] uppercase tracking-[0.16em] text-muted">
+            <span>OUTPUT · SCORE</span>
+            <span>SEED · APPROVALS</span>
+            <span>COMMIT · REVOKE</span>
+          </div>
         </div>
 
-        <div className="flex flex-wrap items-center gap-3">
-          <a
-            href={TWITTER}
-            target="_blank"
-            rel="noreferrer"
-            className="ui-btn-secondary !w-auto !min-h-9 px-3 text-xs"
-          >
-            <XIcon />
-            @0xTomzsh
-          </a>
-          <a
-            href={GITHUB}
-            target="_blank"
-            rel="noreferrer"
-            className="ui-btn-secondary !w-auto !min-h-9 px-3 text-xs"
-          >
-            <GitHubIcon />
-            GitHub
-          </a>
+        <div className="flex flex-col justify-between gap-6 sm:items-end">
+          <div className="flex flex-wrap items-center gap-2 sm:justify-end">
+            <a
+              href={TWITTER}
+              target="_blank"
+              rel="noreferrer"
+              className="ui-btn-secondary !w-auto !min-h-9 px-3"
+            >
+              <XIcon />
+              @0xTomzsh
+            </a>
+            <a
+              href={GITHUB}
+              target="_blank"
+              rel="noreferrer"
+              className="ui-btn-secondary !w-auto !min-h-9 px-3"
+            >
+              <GitHubIcon />
+              GitHub
+            </a>
+          </div>
+          <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted sm:text-right">
+            Built for{" "}
+            <a
+              href="https://www.monad.xyz"
+              target="_blank"
+              rel="noreferrer"
+              className="text-foreground"
+            >
+              Monad
+            </a>
+            {" · "}
+            <Link href="/" className="text-foreground">
+              Wallet Doctor
+            </Link>
+          </div>
         </div>
       </div>
-      <div className="border-t border-border px-4 py-3 text-center text-[11px] text-muted sm:px-6">
-        Built for{" "}
-        <a href="https://www.monad.xyz" target="_blank" rel="noreferrer" className="ui-link">
-          Monad
-        </a>
-        {" · "}
-        <Link href="/" className="ui-link">
-          Wallet Doctor
-        </Link>
-        {" · "}
-        <a href={GITHUB} target="_blank" rel="noreferrer" className="ui-link">
-          GitHub
-        </a>
+      <div className="border-t border-border px-4 py-3 font-mono text-[10px] uppercase tracking-[0.14em] text-muted sm:px-6">
+        <div className="mx-auto flex max-w-6xl flex-col gap-1 sm:flex-row sm:justify-between">
+          <span>© {new Date().getFullYear()} Wallet Doctor</span>
+          <span>Open source · No custody · Soulbound proof</span>
+        </div>
       </div>
     </footer>
   );
@@ -60,7 +72,7 @@ export function Footer() {
 
 function XIcon() {
   return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
       <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.727-8.835L1.254 2.25H8.08l4.253 5.622L18.244 2.25zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77z" />
     </svg>
   );
@@ -68,7 +80,7 @@ function XIcon() {
 
 function GitHubIcon() {
   return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
       <path
         fillRule="evenodd"
         clipRule="evenodd"

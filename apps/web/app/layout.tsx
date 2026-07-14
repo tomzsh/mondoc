@@ -1,30 +1,33 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, Roboto_Mono } from "next/font/google";
+import { IBM_Plex_Sans, IBM_Plex_Mono } from "next/font/google";
 import { Providers } from "@/components/providers";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import "./globals.css";
 
-const body = Inter({
+const body = IBM_Plex_Sans({
   subsets: ["latin"],
   variable: "--font-body",
   weight: ["400", "500", "600", "700"],
 });
 
-const mono = Roboto_Mono({
+const mono = IBM_Plex_Mono({
   subsets: ["latin"],
   variable: "--font-mono",
   weight: ["400", "500", "600"],
 });
 
 export const metadata: Metadata = {
-  title: "Monad Wallet Doctor",
+  title: "Wallet Doctor — Monad",
   description:
-    "Check your wallet health, revoke risky approvals, and prove onchain that your wallet is clean — on Monad.",
+    "Clinical wallet diagnostics for Monad. Scan approvals, revoke risk, log cleanups onchain, earn a soulbound badge.",
   openGraph: {
-    title: "Monad Wallet Doctor",
+    title: "Wallet Doctor — Monad",
     description:
-      "Scan approvals, one-click revoke, log cleanups onchain, security score + badge.",
+      "Research-grade approval scanning, one-click revoke, onchain cleanup proof.",
+  },
+  icons: {
+    icon: "/brand/logo-mark.svg",
   },
 };
 
@@ -34,18 +37,20 @@ export const viewport: Viewport = {
   maximumScale: 5,
   viewportFit: "cover",
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#6E54FF" },
-    { media: "(prefers-color-scheme: dark)", color: "#0E091C" },
+    { media: "(prefers-color-scheme: light)", color: "#F4F3EF" },
+    { media: "(prefers-color-scheme: dark)", color: "#050505" },
   ],
 };
 
+/** Default dark — research-lab aesthetic */
 const themeInitScript = `
 (function(){
   try {
     var k = 'wallet-doctor-theme';
     var s = localStorage.getItem(k);
     var d = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    var t = s === 'light' || s === 'dark' ? s : (d ? 'dark' : 'light');
+    // default dark when no preference stored (lab aesthetic)
+    var t = s === 'light' || s === 'dark' ? s : (d ? 'dark' : 'dark');
     if (t === 'dark') document.documentElement.classList.add('dark');
     document.documentElement.style.colorScheme = t;
   } catch (e) {}

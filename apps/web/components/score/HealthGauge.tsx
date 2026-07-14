@@ -30,43 +30,52 @@ export function HealthGauge({ score, className, size = 180 }: Props) {
         <path
           d="M 30 120 A 70 70 0 1 1 170 120"
           fill="none"
-          stroke="var(--border)"
-          strokeWidth="12"
-          strokeLinecap="round"
+          stroke="var(--border-strong)"
+          strokeWidth="8"
+          strokeLinecap="square"
         />
         <path
           d="M 30 120 A 70 70 0 1 1 170 120"
           fill="none"
           stroke={color}
-          strokeWidth="12"
-          strokeLinecap="round"
+          strokeWidth="8"
+          strokeLinecap="square"
           strokeDasharray={`${arc} ${c}`}
           strokeDashoffset={offset}
           className="transition-all duration-700 ease-out"
         />
         <text
           x="100"
-          y="105"
+          y="100"
           textAnchor="middle"
           fill="var(--foreground)"
-          style={{ fontSize: 40, fontWeight: 600 }}
+          style={{
+            fontSize: 42,
+            fontWeight: 600,
+            fontFamily: "var(--font-mono), ui-monospace, monospace",
+          }}
         >
           {clamped}
         </text>
         <text
           x="100"
-          y="126"
+          y="122"
           textAnchor="middle"
           fill="var(--muted)"
-          style={{ fontSize: 12, fontWeight: 500 }}
+          style={{
+            fontSize: 10,
+            fontWeight: 500,
+            letterSpacing: "0.16em",
+            fontFamily: "var(--font-mono), ui-monospace, monospace",
+          }}
         >
-          / 100
+          OUTPUT / 100
         </text>
       </svg>
       <div
-        className="ui-badge mt-1"
+        className="ui-badge mt-2"
         style={{
-          backgroundColor: `${color}22`,
+          borderColor: color,
           color,
         }}
       >

@@ -13,13 +13,14 @@ export default function ScanPage() {
   const range = getScanRange(scanRangeId);
 
   return (
-    <div className="space-y-5 sm:space-y-6">
+    <div className="space-y-6 sm:space-y-8">
       <div>
-        <h1 className="page-title">Approval Scanner</h1>
+        <p className="section-kicker">Protocol · Scan</p>
+        <h1 className="page-title mt-2">Approval Scanner</h1>
         <p className="page-desc">
-          Scans Approval / ApprovalForAll logs back through chain history, then checks
-          which allowances are still active. Use <strong>All history</strong> to
-          include very old approvals.
+          Scans Approval / ApprovalForAll logs through chain history, then checks
+          which allowances are still active. Use <strong>All history</strong> for
+          full coverage.
         </p>
       </div>
 

@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <!-- Wallet Doctor mark — clinical seal, monochrome research aesthetic -->
+  <rect width="64" height="64" rx="14" fill="#0A0A0A"/>
+  <rect x="1.5" y="1.5" width="61" height="61" rx="12.5" stroke="#F5F5F5" stroke-opacity="0.18" stroke-width="1.5"/>
+  <!-- outer ring -->
+  <circle cx="32" cy="32" r="20" stroke="#F5F5F5" stroke-width="1.25" stroke-opacity="0.9"/>
+  <circle cx="32" cy="32" r="16.5" stroke="#F5F5F5" stroke-width="0.75" stroke-opacity="0.35"/>
+  <!-- medical cross -->
+  <path d="M30 20h4v8h8v4h-8v8h-4v-8h-8v-4h8v-8z" fill="#F5F5F5"/>
+  <!-- ECG pulse underlay (diagnostic) -->
+  <path d="M14 44h8l2.5-5 3 10 3.5-14 2.5 9H50" stroke="#F5F5F5" stroke-width="1.4" stroke-linecap="square" stroke-linejoin="miter" opacity="0.55"/>
+</svg>

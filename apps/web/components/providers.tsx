@@ -13,8 +13,6 @@ import { wagmiConfig, monadTestnet } from "@/lib/wagmi";
 import { ThemeProvider, useTheme } from "@/components/theme/ThemeProvider";
 import "@rainbow-me/rainbowkit/styles.css";
 
-const MONAD_PURPLE = "#6E54FF";
-
 function AppShell({ children }: { children: ReactNode }) {
   const { theme, mounted } = useTheme();
   const [queryClient] = useState(
@@ -30,15 +28,23 @@ function AppShell({ children }: { children: ReactNode }) {
   );
 
   const rkTheme = useMemo(() => {
-    const base = {
-      accentColor: MONAD_PURPLE,
-      accentColorForeground: "#FFFFFF",
-      borderRadius: "large" as const,
-      fontStack: "system" as const,
-      overlayBlur: "small" as const,
-    };
-    const mode = mounted ? theme : "light";
-    return mode === "dark" ? darkTheme(base) : lightTheme(base);
+    const mode = mounted ? theme : "dark";
+    if (mode === "dark") {
+      return darkTheme({
+        accentColor: "#F2F2F2",
+        accentColorForeground: "#050505",
+        borderRadius: "none",
+        fontStack: "system",
+        overlayBlur: "small",
+      });
+    }
+    return lightTheme({
+      accentColor: "#0A0A0A",
+      accentColorForeground: "#FAFAF8",
+      borderRadius: "none",
+      fontStack: "system",
+      overlayBlur: "small",
+    });
   }, [theme, mounted]);
 
   return (
@@ -50,18 +56,23 @@ function AppShell({ children }: { children: ReactNode }) {
           locale="en-US"
           modalSize="compact"
           appInfo={{
-            appName: "Monad Wallet Doctor",
+            appName: "Wallet Doctor",
             learnMoreUrl: "https://www.monad.xyz",
           }}
         >
           {children}
           <Toaster
-            theme={mounted && theme === "dark" ? "dark" : "light"}
+            theme={mounted && theme === "light" ? "light" : "dark"}
             position="bottom-right"
             richColors
             closeButton
             toastOptions={{
-              style: { zIndex: 9999 },
+              style: {
+                zIndex: 9999,
+                borderRadius: 0,
+                fontFamily: "var(--font-mono), ui-monospace, monospace",
+                fontSize: 12,
+              },
             }}
           />
         </RainbowKitProvider>

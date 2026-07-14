@@ -25,22 +25,29 @@ const config: Config = {
         danger: "var(--danger)",
         success: "var(--success)",
         warning: "var(--warning)",
-        monad: {
-          purple: "#6E54FF",
-          soft: "#DDD7FE",
-          ink: "#0E091C",
-          cyan: "#85E6FF",
-          pink: "#FF8EE4",
-          orange: "#FFAE45",
-        },
       },
       boxShadow: {
         sm: "var(--shadow)",
         md: "var(--shadow-md)",
       },
       fontFamily: {
-        body: ["var(--font-body)", "Inter", "ui-sans-serif", "system-ui", "sans-serif"],
-        mono: ["var(--font-mono)", "Roboto Mono", "ui-monospace", "monospace"],
+        body: [
+          "var(--font-body)",
+          "IBM Plex Sans",
+          "ui-sans-serif",
+          "system-ui",
+          "sans-serif",
+        ],
+        mono: [
+          "var(--font-mono)",
+          "IBM Plex Mono",
+          "ui-monospace",
+          "monospace",
+        ],
+      },
+      borderRadius: {
+        // research-lab: sharp corners by default
+        none: "0",
       },
     },
   },

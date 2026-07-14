@@ -47,10 +47,10 @@ export function scoreLabel(score: number): string {
   return "At risk";
 }
 
-/** Clean score colors */
+/** Clinical score colors (theme tokens) */
 export function scoreColor(score: number): string {
-  if (score >= 80) return "#30A46C";
-  if (score >= 60) return "#6E54FF";
-  if (score >= 40) return "#F5A524";
-  return "#E5484D";
+  if (score >= 80) return "var(--success)";
+  if (score >= 60) return "var(--foreground)";
+  if (score >= 40) return "var(--warning)";
+  return "var(--danger)";
 }

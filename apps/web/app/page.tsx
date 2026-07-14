@@ -9,6 +9,7 @@ import { BadgeNftCard } from "@/components/score/BadgeNftCard";
 import { useHealthScore } from "@/hooks/useHealthScore";
 import { useCleanupHistory } from "@/hooks/useCleanupHistory";
 import { ConnectButton } from "@/components/wallet/ConnectButton";
+import { AppLogo } from "@/components/brand/AppLogo";
 import { cn } from "@/lib/utils";
 
 function DashboardBody() {
@@ -20,59 +21,88 @@ function DashboardBody() {
   const medium = approvals.filter((a) => a.risk === "medium").length;
 
   return (
-    <div className="space-y-6 sm:space-y-8">
-      <div className="grid gap-4 sm:gap-6 lg:grid-cols-[1fr_1.15fr]">
-        <section className="ui-card p-5 sm:p-6">
-          <div className="mb-1 text-xs font-medium uppercase tracking-wide text-muted">
-            Live Wallet Health Score
-          </div>
-          <HealthGauge score={approvalsLoading ? 0 : score} className="mx-auto max-w-[200px]" />
-          <p className="mt-3 text-center text-sm text-muted">
+    <div className="space-y-8 sm:space-y-10">
+      <div className="grid gap-px border border-border bg-border lg:grid-cols-[1.1fr_1fr]">
+        <section className="bg-surface p-6 sm:p-8">
+          <div className="section-kicker">Live diagnostics</div>
+          <h2 className="mt-2 text-lg font-semibold tracking-tight">
+            Wallet health score
+          </h2>
+          <HealthGauge
+            score={approvalsLoading ? 0 : score}
+            className="mx-auto mt-6 max-w-[200px]"
+          />
+          <p className="mt-4 text-center text-sm text-muted">
             {approvalsLoading
               ? "Calculating from active approvals…"
               : `${label} · ${cleanupCount} onchain cleanup(s)`}
           </p>
-          <p className="mt-1 text-center text-xs text-muted">
-            Live score from scan · separate from NFT score below
-          </p>
+          <div className="mt-4 flex justify-center gap-6 border-t border-border pt-4 font-mono text-[10px] uppercase tracking-[0.14em] text-muted">
+            <span>
+              OUTPUT{" "}
+              <span className="text-foreground">
+                {approvalsLoading ? "—" : score}
+              </span>
+            </span>
+            <span>
+              SEED{" "}
+              <span className="text-foreground">
+                {approvalsLoading ? "—" : approvals.length}
+              </span>
+            </span>
+          </div>
         </section>
 
-        <section className="grid grid-cols-1 gap-3 sm:grid-cols-3 lg:grid-cols-1 xl:grid-cols-3">
+        <section className="grid grid-cols-1 divide-y divide-border bg-surface sm:grid-cols-3 sm:divide-x sm:divide-y-0 lg:grid-cols-1 lg:divide-x-0 lg:divide-y xl:grid-cols-3 xl:divide-x xl:divide-y-0">
           <StatCard
-            title="Active approvals"
+            kicker="Approvals"
+            title="Active"
             value={approvalsLoading ? "…" : String(approvals.length)}
-            hint="eth_getLogs + eth_call"
+            hint="Live allowance set"
           />
           <StatCard
-            title="High risk"
+            kicker="Risk"
+            title="High"
             value={approvalsLoading ? "…" : String(high)}
             hint="Unlimited · unknown"
             danger={high > 0}
           />
           <StatCard
-            title="Medium risk"
+            kicker="Risk"
+            title="Medium"
             value={approvalsLoading ? "…" : String(medium)}
-            hint="Unlimited known / large"
+            hint="Known / large"
           />
         </section>
       </div>
 
-      {/* Soulbound Cleanup Badge NFT + onchain/mint score */}
       <BadgeNftCard />
 
-      <div className="grid gap-4 sm:gap-6 lg:grid-cols-2">
-        <ScoreHistoryChart history={history.data ?? []} />
-        <div className="ui-card p-5 sm:p-6">
-          <h2 className="text-lg font-semibold tracking-tight">Start your check-up</h2>
-          <p className="mt-1.5 text-sm text-muted">
-            Scan risky approvals, revoke in one click, log onchain, and earn a badge.
+      <div className="grid gap-px border border-border bg-border lg:grid-cols-2">
+        <div className="bg-surface p-6 sm:p-8">
+          <div className="section-kicker">Onchain history</div>
+          <h2 className="mt-2 text-lg font-semibold tracking-tight">
+            Score trajectory
+          </h2>
+          <div className="mt-4">
+            <ScoreHistoryChart history={history.data ?? []} />
+          </div>
+        </div>
+        <div className="bg-surface p-6 sm:p-8">
+          <div className="section-kicker">Protocol</div>
+          <h2 className="mt-2 text-lg font-semibold tracking-tight">
+            Run a check-up
+          </h2>
+          <p className="mt-2 text-sm leading-relaxed text-muted">
+            Scan approval surfaces, revoke exposure, commit cleanup logs, and
+            mint a soulbound proof when onchain score ≥ 80.
           </p>
-          <div className="mt-5 flex flex-col gap-2.5">
+          <div className="mt-6 flex flex-col gap-2">
             <Link href="/scan" className="ui-btn !w-full">
-              Open Approval Scanner
+              Open scanner
             </Link>
             <Link href="/history" className="ui-btn-secondary !w-full">
-              View cleanup history
+              View cleanup log
             </Link>
           </div>
         </div>
@@ -82,28 +112,33 @@ function DashboardBody() {
 }
 
 function StatCard({
+  kicker,
   title,
   value,
   hint,
   danger,
 }: {
+  kicker: string;
   title: string;
   value: string;
   hint: string;
   danger?: boolean;
 }) {
   return (
-    <div className="ui-card p-4 sm:p-5">
-      <div className="text-xs font-medium uppercase tracking-wide text-muted">{title}</div>
+    <div className="bg-surface p-5 sm:p-6">
+      <div className="section-kicker">{kicker}</div>
+      <div className="mt-1 text-sm font-medium text-foreground">{title}</div>
       <div
         className={cn(
-          "mt-1 text-3xl font-semibold tabular-nums tracking-tight sm:text-4xl",
+          "mt-3 font-mono text-3xl font-semibold tabular-nums tracking-tight sm:text-4xl",
           danger ? "text-danger" : "text-foreground",
         )}
       >
         {value}
       </div>
-      <div className="mt-1 text-xs text-muted">{hint}</div>
+      <div className="mt-2 font-mono text-[10px] uppercase tracking-[0.12em] text-muted">
+        {hint}
+      </div>
     </div>
   );
 }
@@ -112,28 +147,60 @@ export default function HomePage() {
   const { isConnected } = useAccount();
 
   return (
-    <div className="space-y-8 sm:space-y-10">
-      <section className="ui-card overflow-hidden bg-gradient-to-br from-accent to-accent-hover p-6 text-white sm:p-10">
-        <div className="max-w-2xl">
-          <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1 text-xs font-medium backdrop-blur">
-            <span className="h-1.5 w-1.5 rounded-full bg-accent-2" />
-            Monad Testnet &amp; Mainnet
+    <div className="space-y-10 sm:space-y-14">
+      <section className="hero-panel p-6 sm:p-10 lg:p-12">
+        <div className="relative z-[1] max-w-2xl">
+          <div className="mb-6 flex items-center gap-3">
+            <AppLogo size={40} />
+            <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted">
+              <span className="text-foreground">Language</span> · Approvals
+              {" · "}
+              <span className="text-foreground">Output</span> · Score
+            </div>
           </div>
-          <h1 className="text-balance text-2xl font-semibold tracking-tight sm:text-4xl">
-            Check your wallet health.
-            <span className="mt-1 block text-white/85">
-              Revoke risky approvals. Prove it onchain.
+
+          <p className="section-kicker">Monad wallet diagnostics</p>
+          <h1 className="mt-3 text-balance text-3xl font-semibold tracking-tight sm:text-5xl sm:leading-[1.08]">
+            Clinical scans for token approvals.
+            <span className="mt-2 block text-muted">
+              Revoke risk. Log proof. Mint a badge.
             </span>
           </h1>
-          <p className="mt-4 max-w-lg text-sm leading-relaxed text-white/80 sm:text-base">
-            Scan token approvals, revoke in one click, and log cleanups to a smart
-            contract — with a security score and soulbound badge on Monad.
+          <p className="mt-5 max-w-xl text-sm leading-relaxed text-muted sm:text-base">
+            Wallet Doctor is a research-grade toolkit for Monad: deep history
+            approval scans, one-click revoke, onchain cleanup logs, and a
+            soulbound health badge — without ever custodizing funds.
           </p>
-          {!isConnected && (
-            <div className="mt-6 max-w-xs">
-              <ConnectButton />
+
+          <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
+            {!isConnected ? (
+              <div className="max-w-xs">
+                <ConnectButton />
+              </div>
+            ) : (
+              <Link href="/scan" className="ui-btn">
+                Start scan
+              </Link>
+            )}
+            <Link href="/history" className="ui-btn-secondary">
+              Cleanup history
+            </Link>
+          </div>
+
+          <div className="mt-10 grid grid-cols-3 gap-4 border-t border-border pt-6 font-mono text-[10px] uppercase tracking-[0.14em] text-muted">
+            <div>
+              <div className="text-muted">Commit</div>
+              <div className="mt-1 text-foreground">No custody</div>
             </div>
-          )}
+            <div>
+              <div className="text-muted">Network</div>
+              <div className="mt-1 text-foreground">Testnet · Mainnet</div>
+            </div>
+            <div>
+              <div className="text-muted">Badge</div>
+              <div className="mt-1 text-foreground">Soulbound NFT</div>
+            </div>
+          </div>
         </div>
       </section>
 
