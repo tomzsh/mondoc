@@ -147,7 +147,7 @@ export function BadgeNftCard({ className }: { className?: string }) {
             )}
           {hasBadge && (
             <p className="text-sm text-muted">
-              Soulbound proof of a healthy wallet.
+              Soulbound self-attested cleanup badge (score stored at mint).
               {badgeAddress && chainId ? (
                 <>
                   {" "}

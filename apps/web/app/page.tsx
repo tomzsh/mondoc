@@ -10,6 +10,7 @@ import { useHealthScore } from "@/hooks/useHealthScore";
 import { useCleanupHistory } from "@/hooks/useCleanupHistory";
 import { ConnectButton } from "@/components/wallet/ConnectButton";
 import { AppLogo } from "@/components/brand/AppLogo";
+import { AttestationNote } from "@/components/layout/AttestationNote";
 import { cn } from "@/lib/utils";
 
 function DashboardBody() {
@@ -203,6 +204,8 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      <AttestationNote />
 
       <ChainGuard>
         <DashboardBody />

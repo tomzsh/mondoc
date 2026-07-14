@@ -4,12 +4,28 @@ import {
   getHypersyncHeight,
   isHypersyncSupported,
 } from "@/lib/scanner/hypersync";
+import { clientIp, rateLimit } from "@/lib/api/rateLimit";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export async function GET(req: Request) {
   try {
+    const ip = clientIp(req);
+    const limited = rateLimit(`hs:height:${ip}`, {
+      limit: 30,
+      windowMs: 60_000,
+    });
+    if (!limited.ok) {
+      return NextResponse.json(
+        { error: "Rate limit exceeded" },
+        {
+          status: 429,
+          headers: { "Retry-After": String(limited.retryAfterSec) },
+        },
+      );
+    }
+
     const token = getEnvioApiToken();
     if (!token) {
       return NextResponse.json(
@@ -32,6 +48,6 @@ export async function GET(req: Request) {
   } catch (e) {
     const message = e instanceof Error ? e.message : String(e);
     console.error("[hypersync/height]", message);
-    return NextResponse.json({ error: message }, { status: 500 });
+    return NextResponse.json({ error: "Internal error" }, { status: 500 });
   }
 }

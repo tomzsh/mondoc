@@ -51,19 +51,19 @@ scripts/                 deploy-testnet.sh · seed-test-approvals.sh · sync-mon
 
 **Never** return a mainnet address when the user is on testnet (and vice versa). If unsure, ask.
 
-### Deployed Wallet Doctor (testnet)
+### Deployed Wallet Doctor (testnet · v2)
 
 Source of truth: `packages/contracts/deployments.testnet.json` + `apps/web/.env.local` (not committed).
 
 | Contract | Address |
 |---|---|
-| WalletDoctorLog | `0x24f12073DC3865c816fb35d88486e3Ba88d0E167` |
-| WalletDoctorBadge | `0x489C2396D1382FA81fBeD3399626e67A421968A7` |
+| WalletDoctorLog | `0x33926537818aB3113cEE97311CC32Bee385C02b5` |
+| WalletDoctorBadge | `0xa1aC20EaBd9db2F22eFad97c704A919b83E98e54` |
 
-Verify with:
+Score/badge are **self-attested** (hackathon model). Verify with:
 
 ```bash
-cast code 0x24f12073DC3865c816fb35d88486e3Ba88d0E167 --rpc-url https://testnet-rpc.monad.xyz
+cast code 0x33926537818aB3113cEE97311CC32Bee385C02b5 --rpc-url https://testnet-rpc.monad.xyz
 ```
 
 ## 4. Hard rules

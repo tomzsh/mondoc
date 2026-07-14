@@ -98,12 +98,14 @@ WalletConnect Project ID: [cloud.walletconnect.com](https://cloud.walletconnect.
 - **Without HyperSync:** public Monad RPC limits `eth_getLogs` to ~100 blocks/request — use shorter ranges (7d / 30d) or set a premium RPC.
 - Alchemy Free on Monad currently caps `eth_getLogs` at ~10 blocks; keep Alchemy for wallet/`eth_call` and HyperSync (or public) for logs.
 
-## Deployed contracts (Monad Testnet)
+## Deployed contracts (Monad Testnet · v2)
 
 | Contract | Address |
 |---|---|
-| **WalletDoctorLog** | [`0x24f12073DC3865c816fb35d88486e3Ba88d0E167`](https://testnet.monadexplorer.com/address/0x24f12073DC3865c816fb35d88486e3Ba88d0E167) |
-| **WalletDoctorBadge** | [`0x489C2396D1382FA81fBeD3399626e67A421968A7`](https://testnet.monadexplorer.com/address/0x489C2396D1382FA81fBeD3399626e67A421968A7) |
+| **WalletDoctorLog** | [`0x33926537818aB3113cEE97311CC32Bee385C02b5`](https://testnet.monadexplorer.com/address/0x33926537818aB3113cEE97311CC32Bee385C02b5) |
+| **WalletDoctorBadge** | [`0xa1aC20EaBd9db2F22eFad97c704A919b83E98e54`](https://testnet.monadexplorer.com/address/0xa1aC20EaBd9db2F22eFad97c704A919b83E98e54) |
+
+v2: self-attested log with zero-address checks, page limit 50; soulbound badge with `scoreAtMint` / `tokenIdOf` / `tokenURI`.
 
 ## Chain reference
 

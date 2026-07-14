@@ -5,16 +5,36 @@ import {
   getHypersyncBaseUrl,
   isHypersyncSupported,
 } from "@/lib/scanner/hypersync";
+import { clientIp, rateLimit } from "@/lib/api/rateLimit";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
+const MAX_TOPICS = 4;
+const MAX_TOPIC_LEN = 66; // 0x + 64 hex
+const MAX_BLOCK_SPAN = 50_000_000; // generous for HyperSync; still caps abuse
+
 /**
  * Single HyperSync page proxy — token never leaves the server.
- * Client drives pagination for progress + shorter request timeouts.
+ * Hackathon hardening: rate limit + input caps + upstream timeout.
  */
 export async function POST(req: Request) {
   try {
+    const ip = clientIp(req);
+    const limited = rateLimit(`hs:query:${ip}`, {
+      limit: 60,
+      windowMs: 60_000,
+    });
+    if (!limited.ok) {
+      return NextResponse.json(
+        { error: "Rate limit exceeded. Try again shortly." },
+        {
+          status: 429,
+          headers: { "Retry-After": String(limited.retryAfterSec) },
+        },
+      );
+    }
+
     const token = getEnvioApiToken();
     if (!token) {
       return NextResponse.json(
@@ -23,13 +43,18 @@ export async function POST(req: Request) {
       );
     }
 
-    const body = (await req.json()) as {
+    let body: {
       chainId?: number;
       fromBlock?: number;
       toBlock?: number;
       topics?: Array<Hex | null>;
       address?: `0x${string}`;
     };
+    try {
+      body = await req.json();
+    } catch {
+      return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
+    }
 
     const chainId = Number(body.chainId);
     const base = getHypersyncBaseUrl(chainId);
@@ -47,12 +72,49 @@ export async function POST(req: Request) {
       );
     }
 
+    if (body.topics.length > MAX_TOPICS) {
+      return NextResponse.json(
+        { error: `At most ${MAX_TOPICS} topics` },
+        { status: 400 },
+      );
+    }
+
+    const fromBlock = Number(body.fromBlock);
+    if (!Number.isFinite(fromBlock) || fromBlock < 0) {
+      return NextResponse.json({ error: "Invalid fromBlock" }, { status: 400 });
+    }
+
+    if (body.toBlock != null) {
+      const toBlock = Number(body.toBlock);
+      if (!Number.isFinite(toBlock) || toBlock < fromBlock) {
+        return NextResponse.json({ error: "Invalid toBlock" }, { status: 400 });
+      }
+      if (toBlock - fromBlock > MAX_BLOCK_SPAN) {
+        return NextResponse.json(
+          { error: "Block range too large" },
+          { status: 400 },
+        );
+      }
+    }
+
+    const topics = body.topics.map((t) => {
+      if (!t) return [];
+      if (typeof t !== "string" || t.length > MAX_TOPIC_LEN) {
+        throw new Error("Invalid topic");
+      }
+      return [t];
+    });
+
+    if (body.address && !/^0x[a-fA-F0-9]{40}$/.test(body.address)) {
+      return NextResponse.json({ error: "Invalid address" }, { status: 400 });
+    }
+
     const payload: Record<string, unknown> = {
-      from_block: Number(body.fromBlock),
+      from_block: fromBlock,
       logs: [
         {
           address: body.address ? [body.address] : undefined,
-          topics: body.topics.map((t) => (t ? [t] : [])),
+          topics,
         },
       ],
       field_selection: {
@@ -72,9 +134,13 @@ export async function POST(req: Request) {
     };
 
     if (body.toBlock != null && Number.isFinite(body.toBlock)) {
-      // HyperSync to_block is exclusive
       payload.to_block = Number(body.toBlock) + 1;
     }
+
+    const upstream = AbortSignal.any([
+      req.signal,
+      AbortSignal.timeout(25_000),
+    ]);
 
     const res = await fetch(`${base}/query`, {
       method: "POST",
@@ -83,13 +149,14 @@ export async function POST(req: Request) {
         Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify(payload),
-      signal: req.signal,
+      signal: upstream,
     });
 
     const text = await res.text();
     if (!res.ok) {
+      console.error("[hypersync/query] upstream", res.status, text.slice(0, 200));
       return NextResponse.json(
-        { error: `HyperSync HTTP ${res.status}: ${text.slice(0, 200)}` },
+        { error: "Upstream log provider error" },
         { status: 502 },
       );
     }
@@ -99,7 +166,7 @@ export async function POST(req: Request) {
       json = JSON.parse(text);
     } catch {
       return NextResponse.json(
-        { error: "Invalid HyperSync JSON" },
+        { error: "Invalid upstream response" },
         { status: 502 },
       );
     }
@@ -107,10 +174,17 @@ export async function POST(req: Request) {
     return NextResponse.json(json);
   } catch (e) {
     const message = e instanceof Error ? e.message : String(e);
-    if (message.includes("aborted") || message.includes("AbortError")) {
-      return NextResponse.json({ error: "aborted" }, { status: 499 });
+    if (
+      message.includes("aborted") ||
+      message.includes("AbortError") ||
+      message.includes("TimeoutError")
+    ) {
+      return NextResponse.json({ error: "Request timed out" }, { status: 504 });
+    }
+    if (message === "Invalid topic") {
+      return NextResponse.json({ error: "Invalid topic" }, { status: 400 });
     }
     console.error("[hypersync/query]", message);
-    return NextResponse.json({ error: message }, { status: 500 });
+    return NextResponse.json({ error: "Internal error" }, { status: 500 });
   }
 }

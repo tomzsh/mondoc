@@ -19,6 +19,13 @@ export const walletDoctorLogAbi = [
   },
   {
     type: "function",
+    name: "cleanupCount",
+    stateMutability: "view",
+    inputs: [{ name: "wallet", type: "address" }],
+    outputs: [{ name: "", type: "uint256" }],
+  },
+  {
+    type: "function",
     name: "historyLength",
     stateMutability: "view",
     inputs: [{ name: "wallet", type: "address" }],
@@ -54,6 +61,20 @@ export const walletDoctorLogAbi = [
     outputs: [{ name: "", type: "uint256" }],
   },
   {
+    type: "function",
+    name: "MAX_PAGE_LIMIT",
+    stateMutability: "view",
+    inputs: [],
+    outputs: [{ name: "", type: "uint256" }],
+  },
+  {
+    type: "function",
+    name: "VERSION",
+    stateMutability: "view",
+    inputs: [],
+    outputs: [{ name: "", type: "uint256" }],
+  },
+  {
     type: "event",
     name: "CleanupLogged",
     inputs: [
@@ -79,7 +100,7 @@ export const walletDoctorBadgeAbi = [
     type: "function",
     name: "mintBadge",
     stateMutability: "nonpayable",
-    inputs: [{ name: "wallet", type: "address" }],
+    inputs: [],
     outputs: [],
   },
   {
@@ -88,6 +109,20 @@ export const walletDoctorBadgeAbi = [
     stateMutability: "view",
     inputs: [{ name: "", type: "address" }],
     outputs: [{ name: "", type: "bool" }],
+  },
+  {
+    type: "function",
+    name: "tokenIdOf",
+    stateMutability: "view",
+    inputs: [{ name: "wallet", type: "address" }],
+    outputs: [{ name: "", type: "uint256" }],
+  },
+  {
+    type: "function",
+    name: "scoreAtMint",
+    stateMutability: "view",
+    inputs: [{ name: "tokenId", type: "uint256" }],
+    outputs: [{ name: "", type: "uint256" }],
   },
   {
     type: "function",
@@ -102,6 +137,20 @@ export const walletDoctorBadgeAbi = [
     stateMutability: "view",
     inputs: [],
     outputs: [{ name: "", type: "address" }],
+  },
+  {
+    type: "function",
+    name: "tokenURI",
+    stateMutability: "view",
+    inputs: [{ name: "tokenId", type: "uint256" }],
+    outputs: [{ name: "", type: "string" }],
+  },
+  {
+    type: "function",
+    name: "VERSION",
+    stateMutability: "view",
+    inputs: [],
+    outputs: [{ name: "", type: "uint256" }],
   },
   {
     type: "event",

@@ -98,7 +98,7 @@ export function useRevoke() {
                 address: badgeAddress,
                 abi: walletDoctorBadgeAbi,
                 functionName: "mintBadge",
-                args: [address],
+                args: [],
                 account: address,
               }),
             )
@@ -108,7 +108,7 @@ export function useRevoke() {
           address: badgeAddress,
           abi: walletDoctorBadgeAbi,
           functionName: "mintBadge",
-          args: [address],
+          args: [],
           ...(gas !== undefined ? { gas } : {}),
         });
         setPendingHash(hash);

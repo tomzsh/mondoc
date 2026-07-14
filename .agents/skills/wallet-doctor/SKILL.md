@@ -50,6 +50,12 @@ packages/contracts/script/SeedTestApprovals.s.sol
 | New RPC / explorer | `../tooling-and-infra/SKILL.md` |
 | Deploy from agent wallet | `../wallet/SKILL.md` |
 
+## Trust model (hackathon v2)
+
+- `logCleanup` is **self-attested** after client revoke — not a full cryptographic health proof.
+- Badge mint requires `currentScore >= 80`, only by the wallet itself; stores `scoreAtMint` + `tokenURI`.
+- Always surface the attestation disclaimer in UI when discussing scores/badges.
+
 ## Non-goals
 
 - Do not reintroduce TX explainer / custody flows.

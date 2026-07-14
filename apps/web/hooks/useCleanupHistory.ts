@@ -13,7 +13,9 @@ export interface CleanupRecord {
   scoreAfter: bigint;
 }
 
+/** Max page size matches contract MAX_PAGE_LIMIT (v2). */
 export function useCleanupHistory(pageSize = 50) {
+  const limit = Math.min(Math.max(1, pageSize), 50);
   const { address, chainId, isConnected } = useAccount();
   const client = usePublicClient();
   const logAddress = chainId ? WALLET_DOCTOR_LOG[chainId] : undefined;
@@ -38,12 +40,12 @@ export function useCleanupHistory(pageSize = 50) {
       if (total === 0) return [];
 
       // latest first: fetch from end
-      const start = Math.max(0, total - pageSize);
+      const start = Math.max(0, total - limit);
       const page = (await client.readContract({
         address: logAddress,
         abi: walletDoctorLogAbi,
         functionName: "getHistoryPage",
-        args: [address, BigInt(start), BigInt(pageSize)],
+        args: [address, BigInt(start), BigInt(limit)],
       })) as CleanupRecord[];
 
       return [...page].reverse();

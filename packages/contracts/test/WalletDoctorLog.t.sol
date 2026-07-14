@@ -21,6 +21,7 @@ contract WalletDoctorLogTest is Test {
 
         assertEq(logContract.currentScore(alice), 75);
         assertEq(logContract.historyLength(alice), 1);
+        assertEq(logContract.cleanupCount(alice), 1);
 
         WalletDoctorLog.CleanupEvent[] memory page = logContract.getHistoryPage(alice, 0, 10);
         assertEq(page.length, 1);
@@ -48,6 +49,16 @@ contract WalletDoctorLogTest is Test {
         logContract.logCleanup(spender, token, 101);
     }
 
+    function test_LogCleanup_RevertsZeroAddress() public {
+        vm.prank(alice);
+        vm.expectRevert(WalletDoctorLog.ZeroAddress.selector);
+        logContract.logCleanup(address(0), token, 50);
+
+        vm.prank(alice);
+        vm.expectRevert(WalletDoctorLog.ZeroAddress.selector);
+        logContract.logCleanup(spender, address(0), 50);
+    }
+
     function test_LogCleanup_AcceptsBoundaryScores() public {
         vm.prank(alice);
         logContract.logCleanup(spender, token, 0);
@@ -57,6 +68,7 @@ contract WalletDoctorLogTest is Test {
         logContract.logCleanup(spender, token, 100);
         assertEq(logContract.currentScore(alice), 100);
         assertEq(logContract.historyLength(alice), 2);
+        assertEq(logContract.cleanupCount(alice), 2);
     }
 
     function test_GetHistoryPage_Pagination() public {
@@ -80,6 +92,13 @@ contract WalletDoctorLogTest is Test {
         assertEq(tail[1].scoreAfter, 40);
     }
 
+    function test_GetHistoryPage_RevertsOnHugeLimit() public {
+        vm.expectRevert(
+            abi.encodeWithSelector(WalletDoctorLog.PageLimitTooHigh.selector, 51, 50)
+        );
+        logContract.getHistoryPage(alice, 0, 51);
+    }
+
     function test_HistoryIsPerWallet() public {
         address bob = makeAddr("bob");
 
@@ -93,5 +112,9 @@ contract WalletDoctorLogTest is Test {
         assertEq(logContract.currentScore(bob), 80);
         assertEq(logContract.historyLength(alice), 1);
         assertEq(logContract.historyLength(bob), 1);
+    }
+
+    function test_Version() public view {
+        assertEq(logContract.VERSION(), 2);
     }
 }

@@ -35,8 +35,10 @@ That script deploys both contracts and writes addresses into `apps/web/.env.loca
 Deploys mock `wdUSD` / `wdETH` / `wdNFT` and creates mixed risk approvals for the deployer wallet.
 Addresses are written to `seed-approvals.testnet.json`. Connect that same wallet in the app → Scan → All history → Revoke.
 
-## Design notes
+## Design notes (v2 — hackathon)
 
-- Contracts **never** custody tokens. Users revoke approvals on the token contracts themselves.
-- `logCleanup` is self-reported (`msg.sender` only updates its own history/score).
-- Badge transfers are blocked (soulbound via `_update` override).
+- Contracts **never** custody tokens. Users revoke on the token contracts themselves.
+- `logCleanup` is **self-attested** (`msg.sender` only); score is client-reported (0–100).
+- Rejects zero `spender`/`token`; page limit capped at 50.
+- Badge: mint only for self, stores `tokenIdOf` + `scoreAtMint`, soulbound, simple `tokenURI`.
+- UI should disclose the attestation model (not full cryptographic wallet health proof).
