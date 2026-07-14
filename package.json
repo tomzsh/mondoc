@@ -11,7 +11,8 @@
     "contracts:test": "cd packages/contracts && forge test -vv",
     "contracts:deploy:testnet": "bash scripts/deploy-testnet.sh",
     "deploy:testnet": "bash scripts/deploy-testnet.sh",
-    "seed:approvals": "bash scripts/seed-test-approvals.sh"
+    "seed:approvals": "bash scripts/seed-test-approvals.sh",
+    "skills:sync": "bash scripts/sync-monskills.sh"
   },
   "packageManager": "pnpm@9.15.0",
   "engines": {

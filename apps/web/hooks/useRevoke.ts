@@ -17,6 +17,7 @@ import {
 } from "@/lib/contracts/addresses";
 import type { ClassifiedApproval } from "@/lib/scanner/classifyRisk";
 import { calculateScore } from "@/lib/score/calculateScore";
+import { estimateContractGasBuffered } from "@/lib/gas";
 import { useQueryClient } from "@tanstack/react-query";
 
 export function useRevoke() {
@@ -44,13 +45,26 @@ export function useRevoke() {
         return;
       }
       const logAddress = WALLET_DOCTOR_LOG[chainId];
-      if (!logAddress || logAddress === zeroAddress) return;
+      if (!logAddress || logAddress === zeroAddress || !address) return;
+
+      const gas = client
+        ? await estimateContractGasBuffered(() =>
+            client.estimateContractGas({
+              address: logAddress,
+              abi: walletDoctorLogAbi,
+              functionName: "logCleanup",
+              args: [spender, token, BigInt(newScore)],
+              account: address,
+            }),
+          )
+        : undefined;
 
       const hash = await writeContractAsync({
         address: logAddress,
         abi: walletDoctorLogAbi,
         functionName: "logCleanup",
         args: [spender, token, BigInt(newScore)],
+        ...(gas !== undefined ? { gas } : {}),
       });
       setPendingHash(hash);
       if (client) {
@@ -60,7 +74,7 @@ export function useRevoke() {
         description: `Score → ${newScore}`,
       });
     },
-    [chainId, client, writeContractAsync],
+    [address, chainId, client, writeContractAsync],
   );
 
   const tryMintBadge = useCallback(
@@ -78,11 +92,24 @@ export function useRevoke() {
         });
         if (has) return;
 
+        const gas = client
+          ? await estimateContractGasBuffered(() =>
+              client.estimateContractGas({
+                address: badgeAddress,
+                abi: walletDoctorBadgeAbi,
+                functionName: "mintBadge",
+                args: [address],
+                account: address,
+              }),
+            )
+          : undefined;
+
         const hash = await writeContractAsync({
           address: badgeAddress,
           abi: walletDoctorBadgeAbi,
           functionName: "mintBadge",
           args: [address],
+          ...(gas !== undefined ? { gas } : {}),
         });
         setPendingHash(hash);
         if (client) await client.waitForTransactionReceipt({ hash });
@@ -106,18 +133,42 @@ export function useRevoke() {
       try {
         let hash: `0x${string}`;
         if (approval.kind === "erc20") {
+          const gas = client
+            ? await estimateContractGasBuffered(() =>
+                client.estimateContractGas({
+                  address: approval.token,
+                  abi: erc20Abi,
+                  functionName: "approve",
+                  args: [approval.spender, 0n],
+                  account: address,
+                }),
+              )
+            : undefined;
           hash = await writeContractAsync({
             address: approval.token,
             abi: erc20Abi,
             functionName: "approve",
             args: [approval.spender, 0n],
+            ...(gas !== undefined ? { gas } : {}),
           });
         } else {
+          const gas = client
+            ? await estimateContractGasBuffered(() =>
+                client.estimateContractGas({
+                  address: approval.token,
+                  abi: erc721Abi,
+                  functionName: "setApprovalForAll",
+                  args: [approval.spender, false],
+                  account: address,
+                }),
+              )
+            : undefined;
           hash = await writeContractAsync({
             address: approval.token,
             abi: erc721Abi,
             functionName: "setApprovalForAll",
             args: [approval.spender, false],
+            ...(gas !== undefined ? { gas } : {}),
           });
         }
         setPendingHash(hash);

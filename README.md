@@ -148,6 +148,24 @@ Deploys mock `wdUSD` / `wdETH` / `wdNFT` and creates mixed-risk approvals for th
 | `pnpm contracts:test` | Foundry tests |
 | `pnpm deploy:testnet` | Deploy contracts + wire `.env.local` |
 | `pnpm seed:approvals` | Mock tokens + test approvals on testnet |
+| `pnpm skills:sync` | Refresh local MONSKILLS under `.agents/skills/` |
+
+## Agents & skills (MONSKILLS)
+
+This repo is wired for AI agents building on Monad:
+
+1. **Entry:** [`AGENTS.md`](./AGENTS.md) — hard rules + skill routing  
+2. **Router:** [`.agents/skills/monskill/SKILL.md`](./.agents/skills/monskill/SKILL.md)  
+3. **Project skill:** [`.agents/skills/wallet-doctor/SKILL.md`](./.agents/skills/wallet-doctor/SKILL.md)  
+4. **Topics:** `addresses`, `gas`, `wallet-integration`, `indexer`, … under `.agents/skills/`
+
+```bash
+# install / refresh Monad skills (does not overwrite wallet-doctor project skill)
+pnpm skills:sync
+# or: npx skills add therealharpaljadeja/monskills
+```
+
+Agents must **not** invent addresses or ignore Monad gas-limit billing — see `gas/` and `addresses/` skills.
 
 ## Tech stack
 
