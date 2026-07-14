@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useMemo, useRef } from "react";
-import { useAccount, useReadContract } from "wagmi";
 import {
   calculateScore,
   scoreLabel,
@@ -9,12 +8,9 @@ import {
 } from "@/lib/score/calculateScore";
 import { useApprovals } from "./useApprovals";
 import { useCleanupHistory } from "./useCleanupHistory";
-import { walletDoctorBadgeAbi } from "@/lib/contracts/abis";
-import { WALLET_DOCTOR_BADGE } from "@/lib/contracts/addresses";
 import { useUiStore } from "@/lib/store";
 
 export function useHealthScore() {
-  const { address, chainId } = useAccount();
   const approvalsQuery = useApprovals();
   const history = useCleanupHistory();
   const pendingCleanups = useUiStore((s) => s.pendingCleanups);
@@ -40,22 +36,6 @@ export function useHealthScore() {
     [approvals, cleanupCount],
   );
 
-  const badgeAddress = chainId ? WALLET_DOCTOR_BADGE[chainId] : undefined;
-  const hasBadgeQuery = useReadContract({
-    address: badgeAddress,
-    abi: walletDoctorBadgeAbi,
-    functionName: "hasBadge",
-    args: address ? [address] : undefined,
-    query: {
-      enabled: Boolean(
-        address &&
-          badgeAddress &&
-          badgeAddress !== "0x0000000000000000000000000000000000000000",
-      ),
-      staleTime: 60_000,
-    },
-  });
-
   /** True only on cold first load (no cached list yet) */
   const approvalsLoading =
     approvalsQuery.isLoading &&
@@ -63,7 +43,9 @@ export function useHealthScore() {
     !approvalsQuery.isFetched;
 
   const approvalsRefreshing =
-    approvalsQuery.isFetching && !approvalsLoading && Boolean(approvalsQuery.data || approvalsQuery.isFetched);
+    approvalsQuery.isFetching &&
+    !approvalsLoading &&
+    Boolean(approvalsQuery.data || approvalsQuery.isFetched);
 
   return {
     score,
@@ -75,7 +57,5 @@ export function useHealthScore() {
     approvalsError: approvalsQuery.error,
     refetchApprovals: approvalsQuery.refetch,
     cleanupCount,
-    hasBadge: Boolean(hasBadgeQuery.data),
-    eligibleForBadge: score >= 80,
   };
 }

@@ -1,5 +1,11 @@
-import { getDefaultConfig } from "@rainbow-me/rainbowkit";
-import { cookieStorage, createStorage } from "wagmi";
+import { connectorsForWallets } from "@rainbow-me/rainbowkit";
+import {
+  injectedWallet,
+  metaMaskWallet,
+  rainbowWallet,
+  walletConnectWallet,
+} from "@rainbow-me/rainbowkit/wallets";
+import { cookieStorage, createConfig, createStorage } from "wagmi";
 import { http, fallback, defineChain, type Chain } from "viem";
 import {
   getMainnetRpc,
@@ -77,9 +83,30 @@ function makeTransport(chainId: number) {
   );
 }
 
-export const wagmiConfig = getDefaultConfig({
-  appName: "MonDoc",
-  projectId: walletConnectProjectId,
+/**
+ * Slim connector set (no getDefaultConfig mega-wallet list).
+ * Skip Coinbase SDK (~6MB) — MetaMask / injected / Rainbow / WalletConnect cover demos.
+ */
+const connectors = connectorsForWallets(
+  [
+    {
+      groupName: "Popular",
+      wallets: [
+        injectedWallet,
+        metaMaskWallet,
+        rainbowWallet,
+        walletConnectWallet,
+      ],
+    },
+  ],
+  {
+    appName: "MonDoc",
+    projectId: walletConnectProjectId,
+  },
+);
+
+export const wagmiConfig = createConfig({
+  connectors,
   chains: [monadTestnet, monadMainnet],
   ssr: true,
   storage: createStorage({ storage: cookieStorage }),

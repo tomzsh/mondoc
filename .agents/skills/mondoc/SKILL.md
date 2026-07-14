@@ -1,6 +1,6 @@
 ---
 name: mondoc
-description: Project skill for MonDoc (Monad wallet diagnostics) — approval scanner, revoke, onchain cleanup log, soulbound badge.
+description: Project skill for MonDoc (Monad wallet diagnostics) — approval scanner, revoke, onchain cleanup log + score.
 ---
 
 # MonDoc — project skill
@@ -11,9 +11,9 @@ Read **`../monskill/SKILL.md`** first, then this file for repo-specific context.
 
 - **Scan** Approval / ApprovalForAll (HyperSync preferred, eth_getLogs fallback)
 - **Revoke** via user wallet (`approve(0)` / `setApprovalForAll(false)`)
-- **Log** cleanup on `WalletDoctorLog` (self-reported score)
-- **Mint** soulbound `WalletDoctorBadge` when onchain score ≥ 80
+- **Log** cleanup on `WalletDoctorLog` (self-reported score; supports `batchLogCleanup`)
 - **No custody** of tokens or keys
+- **No badge NFT** in the product UI (removed — do not re-add unless the user asks)
 
 ## Architecture
 
@@ -24,18 +24,17 @@ Read **`../monskill/SKILL.md`** first, then this file for repo-specific context.
 | Scan | `lib/scanner/*` | HyperSync proxy + parallel getLogs |
 | Score | `lib/score/calculateScore.ts` | Live UI score vs onchain log score |
 | Gas | `lib/gas.ts` | Monad-safe limits (charge on **limit**) |
-| Contracts | `packages/contracts` | Foundry OZ ERC-721 badge + log |
+| Contracts | `packages/contracts` | Foundry: Log + mocks (+ legacy Badge source) |
 | Deploy | `scripts/deploy-testnet.sh` | Writes `.env.local` + deployments JSON |
 
 ## Key files
 
 ```
 apps/web/hooks/useApprovals.ts      # scan hook (range + abort)
-apps/web/hooks/useRevoke.ts         # revoke + logCleanup + mintBadge
-apps/web/hooks/useBadgeNft.ts       # onchain + mint score for dashboard
+apps/web/hooks/useRevoke.ts         # revoke + logCleanup / batchLogCleanup
+apps/web/hooks/useHealthScore.ts    # live score from approvals + cleanups
 apps/web/app/api/hypersync/*        # server Envio proxy
 packages/contracts/src/WalletDoctorLog.sol
-packages/contracts/src/WalletDoctorBadge.sol
 packages/contracts/script/SeedTestApprovals.s.sol
 ```
 
@@ -45,32 +44,32 @@ packages/contracts/script/SeedTestApprovals.s.sol
 |--------|-----------|
 | New revoke path / gas UI | `../gas/SKILL.md` |
 | New spender labels / token lists | `../addresses/SKILL.md` |
-| Wallet connect / Para / providers | `../wallet-integration/SKILL.md` |
+| Wallet connect / providers | `../wallet-integration/SKILL.md` |
 | HyperIndex instead of client logs | `../indexer/SKILL.md` |
 | New RPC / explorer | `../tooling-and-infra/SKILL.md` |
 | Deploy from agent wallet | `../wallet/SKILL.md` |
 
-## Trust model (hackathon v2)
+## Trust model
 
-- `logCleanup` is **self-attested** after client revoke — not a full cryptographic health proof.
-- Badge mint requires `currentScore >= 80`, only by the wallet itself; stores `scoreAtMint` + `tokenURI`.
-- Always surface the attestation disclaimer in UI when discussing scores/badges.
+- `logCleanup` / `batchLogCleanup` are **self-attested** after client revoke — not a full cryptographic health proof.
+- Always surface the attestation disclaimer in UI when discussing scores.
 
 ## Non-goals
 
 - Do not reintroduce TX explainer / custody flows.
 - Do not hardcode user API keys into the client bundle.
-- Do not replace RainbowKit with Para unless the user asks (see wallet-integration skill; requires `para login`).
+- Do not reintroduce badge mint UI unless explicitly requested.
+- Do not replace RainbowKit with another wallet kit unless the user asks.
 
 ## Brand / UI
 
-- Research-lab monochrome (dark default), IBM Plex, sharp corners.
-- Logo: clinical seal (cross + ECG) in `components/brand/AppLogo.tsx`.
+- Monad brand kit colors (primary `#6E54FF`), dark default, Inter + Roboto Mono.
+- Phosphor icons; logo: FirstAidKit seal in `components/brand/AppLogo.tsx`.
 - English UI copy.
 
 ## Verification checklist
 
 - [ ] Addresses from env / deployments JSON, not invented
-- [ ] Gas estimated with ≤10% buffer (`withGasBuffer` in `lib/gas.ts`)
+- [ ] Gas estimated with ≤10% buffer (`lib/gas.ts`)
 - [ ] Secrets only in gitignored env files
 - [ ] `pnpm exec tsc --noEmit` (web) and/or `forge test` (contracts)

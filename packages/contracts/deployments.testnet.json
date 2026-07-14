@@ -3,22 +3,17 @@
   "network": "monad-testnet",
   "deployer": "0x23947730B347A3d55e1eAc1d04d007dB29e818d9",
   "WalletDoctorLog": "0x433e9B7d88332207EFa8f98A463267bFd649F661",
-  "WalletDoctorBadge": "0x57Fc8003a078d040E03E86fEb204630FE923038F",
   "rpc": "https://testnet-rpc.monad.xyz",
   "version": 3,
   "features": {
     "batchLogCleanup": true,
-    "maxBatch": 25,
-    "badgeAutoMint": false
+    "maxBatch": 25
   },
   "explorer": {
-    "log": "https://testnet.monadexplorer.com/address/0x433e9B7d88332207EFa8f98A463267bFd649F661",
-    "badge": "https://testnet.monadexplorer.com/address/0x57Fc8003a078d040E03E86fEb204630FE923038F"
+    "log": "https://testnet.monadexplorer.com/address/0x433e9B7d88332207EFa8f98A463267bFd649F661"
   },
-  "badge": {
-    "name": "MonDoc Cleanup Badge",
-    "symbol": "MDOC",
-    "metadata": "onchain tokenURI (JSON + SVG)",
-    "mint": "explicit only — never after each revoke"
+  "notes": {
+    "product": "Web app uses WalletDoctorLog only (scan / revoke / log + score).",
+    "legacyBadge": "WalletDoctorBadge was deployed historically at 0x57Fc8003a078d040E03E86fEb204630FE923038F but is not integrated in the app."
   }
 }

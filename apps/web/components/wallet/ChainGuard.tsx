@@ -2,6 +2,7 @@
 
 import { type ReactNode } from "react";
 import { useAccount, useSwitchChain } from "wagmi";
+import { Warning, Wallet } from "@phosphor-icons/react";
 import { monadMainnet, monadTestnet } from "@/lib/wagmi";
 import { ConnectButton } from "./ConnectButton";
 
@@ -14,10 +15,12 @@ export function ChainGuard({ children }: { children: ReactNode }) {
   if (!isConnected) {
     return (
       <div className="ui-card px-4 py-10 text-center sm:px-8 sm:py-12">
-        <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-accent-soft text-xl text-accent">
-          🔗
+        <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center border border-border bg-accent-soft text-accent">
+          <Wallet size={24} weight="regular" aria-hidden />
         </div>
-        <h2 className="text-xl font-semibold tracking-tight">Connect your wallet</h2>
+        <h2 className="text-xl font-semibold tracking-tight">
+          Connect your wallet
+        </h2>
         <p className="mx-auto mt-2 max-w-md text-sm text-muted">
           Connect to Monad Testnet or Mainnet to scan approvals and check your
           health score.
@@ -32,7 +35,12 @@ export function ChainGuard({ children }: { children: ReactNode }) {
   if (chainId && !SUPPORTED_IDS.includes(chainId)) {
     return (
       <div className="ui-card border-warning/30 bg-warning/5 px-4 py-10 text-center sm:px-8">
-        <h2 className="text-xl font-semibold tracking-tight">Unsupported network</h2>
+        <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center border border-warning/40 bg-warning/10 text-warning">
+          <Warning size={24} weight="regular" aria-hidden />
+        </div>
+        <h2 className="text-xl font-semibold tracking-tight">
+          Unsupported network
+        </h2>
         <p className="mx-auto mt-2 max-w-md text-sm text-muted">
           MonDoc only runs on Monad. Switch network to continue.
         </p>

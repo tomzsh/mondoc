@@ -31,9 +31,9 @@ export function isUnlimitedAllowance(allowance: bigint): boolean {
 }
 
 /**
- * 🔴 High: unlimited to unknown contracts
- * 🟡 Medium: unlimited to known contracts, or large but capped allowance
- * 🟢 Low: small/reasonable allowance, well-known spender
+ * High: unlimited to unknown contracts
+ * Medium: unlimited to known contracts, or large but capped allowance
+ * Low: small/reasonable allowance, well-known spender
  */
 export function classifyRisk(
   allowance: bigint,

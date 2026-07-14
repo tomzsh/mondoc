@@ -2,7 +2,7 @@
   "name": "mondoc",
   "private": true,
   "version": "0.1.0",
-  "description": "MonDoc — clinical wallet diagnostics on Monad: scan, revoke, log, soulbound badge.",
+  "description": "MonDoc — clinical wallet diagnostics on Monad: scan, revoke, log.",
   "scripts": {
     "dev": "pnpm --filter web dev",
     "build": "pnpm --filter web build",

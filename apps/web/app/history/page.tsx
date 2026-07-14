@@ -1,6 +1,7 @@
 "use client";
 
 import { useAccount } from "wagmi";
+import { ArrowSquareOut, Scroll } from "@phosphor-icons/react";
 import { ChainGuard } from "@/components/wallet/ChainGuard";
 import { useCleanupHistory } from "@/hooks/useCleanupHistory";
 import { shortAddress } from "@/lib/utils";
@@ -38,6 +39,9 @@ function HistoryBody() {
   if (!configured) {
     return (
       <div className="ui-card border-warning/30 bg-warning/5 p-5 text-sm sm:p-6">
+        <div className="mb-3 flex h-10 w-10 items-center justify-center border border-warning/40 bg-warning/10 text-warning">
+          <Scroll size={20} weight="regular" aria-hidden />
+        </div>
         <p className="font-semibold">Contract not configured</p>
         <p className="mt-2 break-words text-muted">
           Deploy MonDoc Log, then set{" "}
@@ -68,9 +72,10 @@ forge script script/Deploy.s.sol --rpc-url $MONAD_TESTNET_RPC_URL --broadcast`}
             href={getExplorerAddressUrl(chainId, logAddr)}
             target="_blank"
             rel="noreferrer"
-            className="ui-btn-secondary !min-h-9 !w-full text-xs sm:!w-auto"
+            className="ui-btn-secondary !min-h-9 !w-full gap-1.5 text-xs sm:!w-auto"
           >
-            Log contract {shortAddress(logAddr)} →
+            Log contract {shortAddress(logAddr)}
+            <ArrowSquareOut size={14} weight="regular" aria-hidden />
           </a>
         )}
       </div>

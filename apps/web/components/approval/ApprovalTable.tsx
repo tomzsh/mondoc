@@ -2,10 +2,12 @@
 
 import { useMemo } from "react";
 import { useAccount } from "wagmi";
+import { ShieldCheck } from "@phosphor-icons/react";
 import type { ClassifiedApproval } from "@/lib/scanner/classifyRisk";
 import { ApprovalRow, rowKey } from "./ApprovalRow";
 import { ApprovalCard } from "./ApprovalCard";
 import { ScanRangePicker } from "./ScanRangePicker";
+import { ScanLoader } from "./ScanLoader";
 import { useUiStore } from "@/lib/store";
 import { useRevoke } from "@/hooks/useRevoke";
 import { useHealthScore } from "@/hooks/useHealthScore";
@@ -63,10 +65,12 @@ export function ApprovalTable({ approvals }: { approvals: ClassifiedApproval[] }
         {/* Never fully disable — user must be able to leave a stuck "All" scan */}
         <ScanRangePicker scanning={approvalsLoading} />
 
-        {approvalsRefreshing && (
-          <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted">
-            Background rescan… list stays interactive
-          </p>
+        {approvalsRefreshing && !approvalsLoading && (
+          <ScanLoader
+            mode="bar"
+            progress={scanProgress ?? "Background rescan — list stays interactive"}
+            rangeLabel={range.label}
+          />
         )}
 
         <div className="scroll-x flex gap-1.5">
@@ -147,26 +151,30 @@ export function ApprovalTable({ approvals }: { approvals: ClassifiedApproval[] }
         </div>
       </div>
 
-      {scanProgress && (
-        <div className="break-words border-b border-border bg-accent-soft px-3 py-2.5 font-mono text-[11px] leading-relaxed text-accent sm:px-4 sm:text-xs">
-          {scanProgress}
-        </div>
+      {approvalsLoading && (
+        <ScanLoader
+          mode="full"
+          progress={scanProgress}
+          rangeLabel={range.label}
+        />
       )}
 
-      {filtered.length === 0 ? (
+      {!approvalsLoading && scanProgress && !approvalsRefreshing && (
+        <ScanLoader mode="bar" progress={scanProgress} rangeLabel={range.label} />
+      )}
+
+      {!approvalsLoading && filtered.length === 0 ? (
         <div className="px-4 py-12 text-center sm:py-16">
-          <p className="text-lg font-semibold">
-            {approvalsLoading ? "Scanning approvals…" : "No active approvals"}
-          </p>
+          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center border border-border bg-accent-soft text-accent">
+            <ShieldCheck size={24} weight="regular" aria-hidden />
+          </div>
+          <p className="text-lg font-semibold">No active approvals</p>
           <p className="mx-auto mt-2 max-w-sm text-sm text-muted">
-            {approvalsLoading
-              ? range.lookbackBlocks === null
-                ? "Full-history scan can take several minutes on public RPCs. Leave this tab open."
-                : "eth_getLogs can take a while — hang tight."
-              : "Nothing active in this range. Try “All history” to include older approvals."}
+            Nothing active in this range. Try “All history” to include older
+            approvals.
           </p>
         </div>
-      ) : (
+      ) : !approvalsLoading ? (
         <>
           <div className="space-y-3 p-3 sm:hidden">
             {filtered.map((a) => {
@@ -216,7 +224,7 @@ export function ApprovalTable({ approvals }: { approvals: ClassifiedApproval[] }
             </table>
           </div>
         </>
-      )}
+      ) : null}
     </div>
   );
 }

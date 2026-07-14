@@ -1,25 +1,38 @@
 "use client";
 
+import { useCallback, type MouseEvent } from "react";
 import { Moon, Sun } from "@phosphor-icons/react";
 import { useTheme } from "./ThemeProvider";
 
+/**
+ * Light/dark control — Phosphor icons (same family as brand mark).
+ */
 export function ThemeToggle() {
   const { theme, toggleTheme, mounted } = useTheme();
+  const isDark = !mounted || theme === "dark";
+
+  const onActivate = useCallback(
+    (e: MouseEvent<HTMLButtonElement>) => {
+      e.preventDefault();
+      e.stopPropagation();
+      toggleTheme();
+    },
+    [toggleTheme],
+  );
 
   return (
     <button
       type="button"
-      onClick={toggleTheme}
-      aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
-      title={theme === "dark" ? "Light mode" : "Dark mode"}
-      className="inline-flex h-8 w-8 shrink-0 items-center justify-center border border-border bg-transparent text-muted transition hover:border-accent hover:text-foreground sm:h-8 sm:w-8"
+      onClick={onActivate}
+      aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
+      title={isDark ? "Light mode" : "Dark mode"}
+      className="rk-header-btn rk-header-btn-network rk-header-btn-icon"
+      data-theme-toggle=""
     >
-      {!mounted ? (
-        <span className="font-mono text-[10px]">·</span>
-      ) : theme === "dark" ? (
-        <Sun size={14} weight="regular" />
+      {isDark ? (
+        <Sun size={16} weight="regular" className="pointer-events-none" aria-hidden />
       ) : (
-        <Moon size={14} weight="regular" />
+        <Moon size={16} weight="regular" className="pointer-events-none" aria-hidden />
       )}
     </button>
   );

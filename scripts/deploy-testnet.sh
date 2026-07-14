@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Deploy WalletDoctorLog + WalletDoctorBadge to Monad Testnet and wire apps/web/.env.local
+# Deploy contracts to Monad Testnet and wire apps/web/.env.local (Log address for the product)
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -54,58 +54,53 @@ echo "$OUT"
 LOG_ADDR=$(echo "$OUT" | rg -o 'WalletDoctorLog:\s*(0x[a-fA-F0-9]{40})' -r '$1' | tail -1)
 BADGE_ADDR=$(echo "$OUT" | rg -o 'WalletDoctorBadge:\s*(0x[a-fA-F0-9]{40})' -r '$1' | tail -1)
 
-# Fallback: parse latest broadcast JSON
-if [[ -z "${LOG_ADDR:-}" || -z "${BADGE_ADDR:-}" ]]; then
+# Fallback: parse latest broadcast JSON (Log is required; Badge optional/legacy)
+if [[ -z "${LOG_ADDR:-}" ]]; then
   BROADCAST=$(ls -t "$CONTRACTS/broadcast/Deploy.s.sol/10143/run-"*.json 2>/dev/null | head -1 || true)
   if [[ -n "${BROADCAST:-}" ]]; then
     LOG_ADDR=$(python3 - << PY
 import json
 d=json.load(open("$BROADCAST"))
 txs=d.get("transactions") or []
-# first create is Log, second is Badge (constructor arg = log)
 for t in txs:
     if t.get("contractName")=="WalletDoctorLog":
-        print(t.get("contractAddress") or t.get("additionalContracts",[{}])[0].get("address",""))
+        print(t.get("contractAddress") or "")
         break
 else:
-    # try returns / deployments
     for t in txs:
         ca=t.get("contractAddress")
-        if ca: 
+        if ca:
             print(ca); break
 PY
 )
-    BADGE_ADDR=$(python3 - << PY
+    if [[ -z "${BADGE_ADDR:-}" ]]; then
+      BADGE_ADDR=$(python3 - << PY
 import json
 d=json.load(open("$BROADCAST"))
 txs=d.get("transactions") or []
-found=False
 for t in txs:
-    name=t.get("contractName") or ""
-    ca=t.get("contractAddress")
-    if name=="WalletDoctorBadge" and ca:
-        print(ca); found=True; break
-if not found:
-    creates=[t.get("contractAddress") for t in txs if t.get("contractAddress")]
-    if len(creates)>=2: print(creates[1])
+    if (t.get("contractName") or "")=="WalletDoctorBadge" and t.get("contractAddress"):
+        print(t.get("contractAddress")); break
 PY
 )
+    fi
   fi
 fi
 
-if [[ -z "${LOG_ADDR:-}" || -z "${BADGE_ADDR:-}" ]]; then
-  echo "Could not parse deploy addresses from forge output. Check broadcast/ folder."
+if [[ -z "${LOG_ADDR:-}" ]]; then
+  echo "Could not parse WalletDoctorLog address from forge output. Check broadcast/ folder."
   exit 1
 fi
 
 echo ""
 echo "✅ Deployed"
 echo "  WalletDoctorLog:   $LOG_ADDR"
-echo "  WalletDoctorBadge: $BADGE_ADDR"
 echo "  Explorer log:   https://testnet.monadexplorer.com/address/$LOG_ADDR"
-echo "  Explorer badge: https://testnet.monadexplorer.com/address/$BADGE_ADDR"
+if [[ -n "${BADGE_ADDR:-}" ]]; then
+  echo "  (legacy WalletDoctorBadge still in Deploy.s.sol: $BADGE_ADDR — not used by the web app)"
+fi
 
-# Wire web env
+# Wire web env (product uses Log only)
 mkdir -p "$(dirname "$WEB_ENV")"
 if [[ -f "$WEB_ENV" ]]; then
   # upsert keys
@@ -116,14 +111,17 @@ text = path.read_text() if path.exists() else ""
 # Do NOT overwrite NEXT_PUBLIC_MONAD_*_RPC — user may use Alchemy / premium RPC
 updates = {
     "NEXT_PUBLIC_LOG_ADDRESS_TESTNET": "$LOG_ADDR",
-    "NEXT_PUBLIC_BADGE_ADDRESS_TESTNET": "$BADGE_ADDR",
 }
+# Drop obsolete badge env keys if present
+drop = {"NEXT_PUBLIC_BADGE_ADDRESS_TESTNET", "NEXT_PUBLIC_BADGE_ADDRESS_MAINNET"}
 lines = text.splitlines()
 keys_done = set()
 out = []
 for line in lines:
     if "=" in line and not line.strip().startswith("#"):
         k = line.split("=",1)[0].strip()
+        if k in drop:
+            continue
         if k in updates:
             out.append(f"{k}={updates[k]}")
             keys_done.add(k)
@@ -142,11 +140,11 @@ NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID=
 NEXT_PUBLIC_MONAD_TESTNET_RPC=${RPC}
 NEXT_PUBLIC_MONAD_MAINNET_RPC=https://rpc.monad.xyz
 NEXT_PUBLIC_LOG_ADDRESS_TESTNET=${LOG_ADDR}
-NEXT_PUBLIC_BADGE_ADDRESS_TESTNET=${BADGE_ADDR}
 NEXT_PUBLIC_LOG_ADDRESS_MAINNET=0x0000000000000000000000000000000000000000
-NEXT_PUBLIC_BADGE_ADDRESS_MAINNET=0x0000000000000000000000000000000000000000
-NEXT_PUBLIC_SCAN_LOOKBACK_BLOCKS=50000
-NEXT_PUBLIC_SCAN_CHUNK_SIZE=2000
+NEXT_PUBLIC_USE_HYPERSYNC=true
+NEXT_PUBLIC_SCAN_CHUNK_SIZE=100
+NEXT_PUBLIC_SCAN_MIN_CHUNK=50
+NEXT_PUBLIC_SCAN_CONCURRENCY=8
 EOF
   echo "Created $WEB_ENV"
 fi
@@ -158,11 +156,17 @@ cat > "$CONTRACTS/deployments.testnet.json" << EOF
   "network": "monad-testnet",
   "deployer": "$DEPLOYER",
   "WalletDoctorLog": "$LOG_ADDR",
-  "WalletDoctorBadge": "$BADGE_ADDR",
   "rpc": "$RPC",
+  "version": 3,
+  "features": {
+    "batchLogCleanup": true,
+    "maxBatch": 25
+  },
   "explorer": {
-    "log": "https://testnet.monadexplorer.com/address/$LOG_ADDR",
-    "badge": "https://testnet.monadexplorer.com/address/$BADGE_ADDR"
+    "log": "https://testnet.monadexplorer.com/address/$LOG_ADDR"
+  },
+  "notes": {
+    "product": "Web app uses WalletDoctorLog only (scan / revoke / log + score)."
   }
 }
 EOF

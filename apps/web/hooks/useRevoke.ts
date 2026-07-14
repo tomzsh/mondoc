@@ -9,10 +9,9 @@ import {
 } from "wagmi";
 import { toast } from "sonner";
 import { type Address, erc20Abi, zeroAddress } from "viem";
-import { erc721Abi, walletDoctorLogAbi, walletDoctorBadgeAbi } from "@/lib/contracts/abis";
+import { erc721Abi, walletDoctorLogAbi } from "@/lib/contracts/abis";
 import {
   WALLET_DOCTOR_LOG,
-  WALLET_DOCTOR_BADGE,
   isContractConfigured,
 } from "@/lib/contracts/addresses";
 import type { ClassifiedApproval } from "@/lib/scanner/classifyRisk";
@@ -20,11 +19,7 @@ import { calculateScore } from "@/lib/score/calculateScore";
 import { estimateContractGasBuffered } from "@/lib/gas";
 import { useQueryClient } from "@tanstack/react-query";
 import { approvalKey, useUiStore } from "@/lib/store";
-import {
-  applyOptimisticRevokes,
-  invalidateLightReads,
-  queryKeyHas,
-} from "@/lib/queryCache";
+import { applyOptimisticRevokes, invalidateLightReads } from "@/lib/queryCache";
 
 /** Onchain batch cap (WalletDoctorLog.MAX_BATCH). */
 const MAX_LOG_BATCH = 25;
@@ -107,10 +102,7 @@ export function useRevoke() {
     [address, chainId, client, writeContractAsync],
   );
 
-  /**
-   * One tx for N cleanup records + single score write.
-   * Never mints a badge.
-   */
+  /** One tx for N cleanup records + single score write. */
   const batchLogCleanup = useCallback(
     async (items: ClassifiedApproval[], finalScore: number) => {
       if (!chainId || !isContractConfigured(chainId) || !address) {
@@ -126,7 +118,6 @@ export function useRevoke() {
       const spenders = chunk.map((i) => i.spender);
       const tokens = chunk.map((i) => i.token);
 
-      // Prefer v3 batchLogCleanup; fall back to single logCleanup if missing
       try {
         const gas = client
           ? await estimateContractGasBuffered(() =>
@@ -156,7 +147,6 @@ export function useRevoke() {
           { description: `Score → ${finalScore}` },
         );
       } catch (e) {
-        // Old contract without batchLogCleanup — single final entry
         console.warn("batchLogCleanup failed, falling back to logCleanup", e);
         const last = chunk[chunk.length - 1]!;
         await logCleanup(last.spender, last.token, finalScore);
@@ -164,69 +154,6 @@ export function useRevoke() {
     },
     [address, chainId, client, writeContractAsync, logCleanup],
   );
-
-  /**
-   * Explicit badge mint only — never called from revoke paths.
-   */
-  const mintBadge = useCallback(async () => {
-    if (!address || !chainId) {
-      toast.error("Connect your wallet first");
-      return;
-    }
-    const badgeAddress = WALLET_DOCTOR_BADGE[chainId];
-    if (!badgeAddress || badgeAddress === zeroAddress) {
-      toast.error("Badge contract not configured");
-      return;
-    }
-
-    setBusy(true);
-    try {
-      const has = await client?.readContract({
-        address: badgeAddress,
-        abi: walletDoctorBadgeAbi,
-        functionName: "hasBadge",
-        args: [address],
-      });
-      if (has) {
-        toast.message("Badge already minted");
-        return;
-      }
-
-      const gas = client
-        ? await estimateContractGasBuffered(() =>
-            client.estimateContractGas({
-              address: badgeAddress,
-              abi: walletDoctorBadgeAbi,
-              functionName: "mintBadge",
-              args: [],
-              account: address,
-            }),
-          )
-        : undefined;
-
-      const hash = await writeContractAsync({
-        address: badgeAddress,
-        abi: walletDoctorBadgeAbi,
-        functionName: "mintBadge",
-        args: [],
-        ...(gas !== undefined ? { gas } : {}),
-      });
-      setPendingHash(hash);
-      if (client) await client.waitForTransactionReceipt({ hash });
-      toast.success("MonDoc badge minted", {
-        description: "Soulbound NFT — mint is optional, not tied to each revoke.",
-      });
-      void queryClient.invalidateQueries({
-        predicate: (q) =>
-          queryKeyHas(q.queryKey, ["hasBadge", "tokenIdOf", "scoreAtMint"]),
-      });
-    } catch (e: unknown) {
-      const msg = e instanceof Error ? e.message : "Mint failed";
-      toast.error(msg.slice(0, 140));
-    } finally {
-      setBusy(false);
-    }
-  }, [address, chainId, client, writeContractAsync, queryClient]);
 
   const sendRevokeTx = useCallback(
     async (approval: ClassifiedApproval) => {
@@ -303,7 +230,6 @@ export function useRevoke() {
         const newScore = calculateScore(nextApprovals, cleanupCount + 1);
 
         try {
-          // Log only — never mint badge here
           await logCleanup(approval.spender, approval.token, newScore);
         } catch (e) {
           console.error(e);
@@ -311,10 +237,6 @@ export function useRevoke() {
         }
 
         softRefreshAfterRevoke(1);
-
-        if (newScore >= 80) {
-          toast.message("Score ≥ 80 — mint badge from the Badge panel (optional)");
-        }
       } catch (e: unknown) {
         const msg = e instanceof Error ? e.message : "Revoke cancelled / failed";
         toast.error(msg.slice(0, 120), { id: "revoke" });
@@ -334,8 +256,7 @@ export function useRevoke() {
   /**
    * Multi-revoke:
    * 1) Sequential token revokes (EOA must call each token contract)
-   * 2) One batchLogCleanup tx for all successful pairs
-   * 3) Never mints badge
+   * 2) One batchLogCleanup for all successful pairs
    */
   const revokeMany = useCallback(
     async (
@@ -407,12 +328,6 @@ export function useRevoke() {
         }
 
         softRefreshAfterRevoke(done.length);
-
-        if (newScore >= 80) {
-          toast.message(
-            "Score ≥ 80 — mint badge from the Badge panel when ready (not auto)",
-          );
-        }
       } finally {
         setBusy(false);
       }
@@ -430,7 +345,6 @@ export function useRevoke() {
   return {
     revokeOne,
     revokeMany,
-    mintBadge,
     busy: busy || receipt.isLoading,
     pendingHash,
   };

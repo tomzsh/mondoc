@@ -1,7 +1,8 @@
 # MonDoc Contracts (Foundry)
 
-- `WalletDoctorLog` — onchain cleanup history + score (self-reported by the calling wallet)
-- `WalletDoctorBadge` — soulbound ERC-721 minted when score ≥ 80
+- **`WalletDoctorLog`** — onchain cleanup history + score (self-reported by the calling wallet)
+- **Mocks** — `MockERC20` / `MockERC721` for seed demos
+- **`WalletDoctorBadge`** — legacy soulbound ERC-721 (still in source / prior testnet deploys; **not used by the web app**)
 
 ## Commands
 
@@ -17,28 +18,30 @@ export MONAD_TESTNET_RPC_URL=https://testnet-rpc.monad.xyz
 forge script script/Deploy.s.sol --rpc-url $MONAD_TESTNET_RPC_URL --broadcast -vvvv
 ```
 
-From the monorepo root you can also run:
+From the monorepo root:
 
 ```bash
 pnpm deploy:testnet
+pnpm seed:approvals
 ```
 
-That script deploys both contracts and writes addresses into `apps/web/.env.local` plus `deployments.testnet.json`.
+`deploy:testnet` runs the Foundry deploy script and writes addresses into `apps/web/.env.local` plus `deployments.testnet.json`.  
+`seed:approvals` deploys mock tokens and creates **3 high · 2 medium · 1 low** risk approvals for the deployer wallet.
 
-### Seed test approvals (for Scan / Revoke demo)
+Connect that same wallet in the app → **Scan** → Rescan → Revoke.
 
-```bash
-# from repo root (uses packages/contracts/.env PRIVATE_KEY)
-./scripts/seed-test-approvals.sh
-```
-
-Deploys mock `wdUSD` / `wdETH` / `wdNFT` and creates mixed risk approvals for the deployer wallet.
-Addresses are written to `seed-approvals.testnet.json`. Connect that same wallet in the app → Scan → All history → Revoke.
-
-## Design notes (v2 — hackathon)
+## Design notes
 
 - Contracts **never** custody tokens. Users revoke on the token contracts themselves.
-- `logCleanup` is **self-attested** (`msg.sender` only); score is client-reported (0–100).
-- Rejects zero `spender`/`token`; page limit capped at 50.
-- Badge: mint only for self, stores `tokenIdOf` + `scoreAtMint`, soulbound, simple `tokenURI`.
-- UI should disclose the attestation model (not full cryptographic wallet health proof).
+- `logCleanup` / `batchLogCleanup` are **self-attested** (`msg.sender` only); score is client-reported (0–100).
+- `batchLogCleanup` accepts up to **25** pairs in one tx.
+- Rejects zero `spender` / `token`; history page size is capped.
+- The UI discloses the self-attested score model (not a cryptographic “wallet is safe” proof).
+
+## Testnet Log (product)
+
+| Contract | Address |
+|----------|---------|
+| WalletDoctorLog | [`0x433e9B7d88332207EFa8f98A463267bFd649F661`](https://testnet.monadexplorer.com/address/0x433e9B7d88332207EFa8f98A463267bFd649F661) |
+
+See `deployments.testnet.json` for the latest broadcast metadata.

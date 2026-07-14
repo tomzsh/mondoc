@@ -81,16 +81,12 @@ export const LIGHT_READ_NEEDLES = [
   "historyLength",
   "cleanupCount",
   "currentScore",
-  "hasBadge",
   "getHistoryPage",
-  "tokenIdOf",
-  "scoreAtMint",
 ] as const;
 
 /** Invalidate cheap onchain reads only (no HyperSync). */
 export function invalidateLightReads(queryClient: QueryClient): void {
   void queryClient.invalidateQueries({ queryKey: ["cleanup-history"] });
-  void queryClient.invalidateQueries({ queryKey: ["badge-minted"] });
   void queryClient.invalidateQueries({
     predicate: (q) => queryKeyHas(q.queryKey, [...LIGHT_READ_NEEDLES]),
   });
