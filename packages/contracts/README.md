@@ -45,3 +45,23 @@ Connect that same wallet in the app → **Scan** → Rescan → Revoke.
 | WalletDoctorLog | [`0x433e9B7d88332207EFa8f98A463267bFd649F661`](https://testnet.monadexplorer.com/address/0x433e9B7d88332207EFa8f98A463267bFd649F661) |
 
 See `deployments.testnet.json` for the latest broadcast metadata.
+
+### Verify on Sourcify (Monad)
+
+```bash
+cd packages/contracts
+# Unset ETHERSCAN_API_KEY if set — otherwise forge defaults to Etherscan client
+unset ETHERSCAN_API_KEY
+
+forge verify-contract \
+  --chain 10143 \
+  --rpc-url https://testnet-rpc.monad.xyz \
+  --verifier sourcify \
+  --verifier-url 'https://sourcify-api-monad.blockvision.org' \
+  0x433e9B7d88332207EFa8f98A463267bFd649F661 \
+  src/WalletDoctorLog.sol:WalletDoctorLog \
+  --num-of-optimizations 200 \
+  --watch
+```
+
+Verified status (2026-07-14): **exact_match** on BlockVision Sourcify.
