@@ -20,8 +20,11 @@ function AppShell({ children }: { children: ReactNode }) {
       new QueryClient({
         defaultOptions: {
           queries: {
+            // Chain data is user-driven (Rescan / after revoke); avoid surprise refetches
             refetchOnWindowFocus: false,
+            refetchOnReconnect: false,
             retry: 1,
+            staleTime: 30_000,
           },
         },
       }),

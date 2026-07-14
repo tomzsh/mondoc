@@ -14,12 +14,20 @@ import { AttestationNote } from "@/components/layout/AttestationNote";
 import { cn } from "@/lib/utils";
 
 function DashboardBody() {
-  const { score, label, approvals, approvalsLoading, cleanupCount } =
-    useHealthScore();
+  const {
+    score,
+    label,
+    approvals,
+    approvalsLoading,
+    approvalsRefreshing,
+    cleanupCount,
+  } = useHealthScore();
   const history = useCleanupHistory();
 
   const high = approvals.filter((a) => a.risk === "high").length;
   const medium = approvals.filter((a) => a.risk === "medium").length;
+  // Only blank on true first load — keep score live during background rescan
+  const showScore = !approvalsLoading;
 
   return (
     <div className="space-y-8 sm:space-y-10">
@@ -30,25 +38,27 @@ function DashboardBody() {
             Wallet health score
           </h2>
           <HealthGauge
-            score={approvalsLoading ? 0 : score}
+            score={showScore ? score : 0}
             className="mx-auto mt-6 max-w-[200px]"
           />
           <p className="mt-4 text-center text-sm text-muted">
-            {approvalsLoading
+            {!showScore
               ? "Calculating from active approvals…"
-              : `${label} · ${cleanupCount} onchain cleanup(s)`}
+              : `${label} · ${cleanupCount} cleanup(s)${
+                  approvalsRefreshing ? " · refreshing…" : ""
+                }`}
           </p>
           <div className="mt-4 flex justify-center gap-6 border-t border-border pt-4 font-mono text-[10px] uppercase tracking-[0.14em] text-muted">
             <span>
               OUTPUT{" "}
               <span className="text-foreground">
-                {approvalsLoading ? "—" : score}
+                {showScore ? score : "—"}
               </span>
             </span>
             <span>
               SEED{" "}
               <span className="text-foreground">
-                {approvalsLoading ? "—" : approvals.length}
+                {showScore ? approvals.length : "—"}
               </span>
             </span>
           </div>
@@ -58,20 +68,20 @@ function DashboardBody() {
           <StatCard
             kicker="Approvals"
             title="Active"
-            value={approvalsLoading ? "…" : String(approvals.length)}
+            value={showScore ? String(approvals.length) : "…"}
             hint="Live allowance set"
           />
           <StatCard
             kicker="Risk"
             title="High"
-            value={approvalsLoading ? "…" : String(high)}
+            value={showScore ? String(high) : "…"}
             hint="Unlimited · unknown"
             danger={high > 0}
           />
           <StatCard
             kicker="Risk"
             title="Medium"
-            value={approvalsLoading ? "…" : String(medium)}
+            value={showScore ? String(medium) : "…"}
             hint="Known / large"
           />
         </section>

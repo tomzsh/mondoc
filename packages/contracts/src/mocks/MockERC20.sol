@@ -14,9 +14,21 @@ contract MockERC20 {
     event Transfer(address indexed from, address indexed to, uint256 value);
     event Approval(address indexed owner, address indexed spender, uint256 value);
 
-    constructor(string memory name_, string memory symbol_) {
+    /// @param mintTo Receiver of initial supply (address(0) = no mint).
+    /// @param amount Initial mint amount (0 = no mint).
+    constructor(
+        string memory name_,
+        string memory symbol_,
+        address mintTo,
+        uint256 amount
+    ) {
         name = name_;
         symbol = symbol_;
+        if (mintTo != address(0) && amount > 0) {
+            totalSupply = amount;
+            balanceOf[mintTo] = amount;
+            emit Transfer(address(0), mintTo, amount);
+        }
     }
 
     function mint(address to, uint256 amount) external {

@@ -8,7 +8,13 @@ import { useUiStore } from "@/lib/store";
 import { getScanRange } from "@/lib/scanner/scanRanges";
 
 export default function ScanPage() {
-  const { score, approvals, approvalsLoading, approvalsError } = useHealthScore();
+  const {
+    score,
+    approvals,
+    approvalsLoading,
+    approvalsRefreshing,
+    approvalsError,
+  } = useHealthScore();
   const scanRangeId = useUiStore((s) => s.scanRangeId);
   const range = getScanRange(scanRangeId);
 
@@ -20,7 +26,8 @@ export default function ScanPage() {
         <p className="page-desc">
           Scans Approval / ApprovalForAll logs through chain history, then checks
           which allowances are still active. Use <strong>All history</strong> for
-          full coverage.
+          full coverage. After revoke, the list updates instantly — full rescan
+          is optional (Rescan) or runs quietly in the background.
         </p>
       </div>
 
@@ -33,7 +40,9 @@ export default function ScanPage() {
               className="mx-auto max-w-[180px]"
             />
             <p className="text-center text-[11px] text-muted">
-              Scan: <span className="font-medium text-foreground">{range.label}</span>
+              Scan:{" "}
+              <span className="font-medium text-foreground">{range.label}</span>
+              {approvalsRefreshing ? " · refreshing…" : ""}
             </p>
           </div>
           <div className="min-w-0 space-y-3">

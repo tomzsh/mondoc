@@ -23,7 +23,12 @@ export function ApprovalTable({ approvals }: { approvals: ClassifiedApproval[] }
   const scanProgress = useUiStore((s) => s.scanProgress);
   const scanRangeId = useUiStore((s) => s.scanRangeId);
   const { revokeOne, revokeMany, busy } = useRevoke();
-  const { cleanupCount, refetchApprovals, approvalsLoading } = useHealthScore();
+  const {
+    cleanupCount,
+    refetchApprovals,
+    approvalsLoading,
+    approvalsRefreshing,
+  } = useHealthScore();
 
   const range = getScanRange(scanRangeId);
 
@@ -58,6 +63,12 @@ export function ApprovalTable({ approvals }: { approvals: ClassifiedApproval[] }
         {/* Never fully disable — user must be able to leave a stuck "All" scan */}
         <ScanRangePicker scanning={approvalsLoading} />
 
+        {approvalsRefreshing && (
+          <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted">
+            Background rescan… list stays interactive
+          </p>
+        )}
+
         <div className="scroll-x flex gap-1.5">
           {(
             [
@@ -91,24 +102,21 @@ export function ApprovalTable({ approvals }: { approvals: ClassifiedApproval[] }
           <div className="flex flex-col gap-2 sm:flex-row sm:justify-end">
             <button
               type="button"
-              onClick={() => refetchApprovals()}
-              disabled={approvalsLoading}
+              onClick={() => void refetchApprovals()}
+              disabled={approvalsLoading || approvalsRefreshing}
               className="ui-btn-secondary !min-h-9 text-xs sm:!w-auto"
             >
-              {approvalsLoading ? "Scanning…" : "Rescan"}
+              {approvalsLoading || approvalsRefreshing ? "Scanning…" : "Rescan"}
             </button>
             {filtered.length > 0 && (
               <button
                 type="button"
-                disabled={busy || approvalsLoading}
+                disabled={busy}
                 onClick={() => {
                   if (selected.length === filtered.length) {
                     clearSelected();
                   } else {
-                    // select all filtered rows
-                    const {
-                      setSelected,
-                    } = useUiStore.getState();
+                    const { setSelected } = useUiStore.getState();
                     setSelected(filtered.map((a) => rowKey(a)));
                   }
                 }}

@@ -1,10 +1,14 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import { useAccount, usePublicClient, useReadContract } from "wagmi";
 import { type Address } from "viem";
 import { walletDoctorLogAbi } from "@/lib/contracts/abis";
-import { WALLET_DOCTOR_LOG, isContractConfigured } from "@/lib/contracts/addresses";
+import {
+  WALLET_DOCTOR_LOG,
+  isContractConfigured,
+} from "@/lib/contracts/addresses";
+import { HISTORY_GC_MS, HISTORY_STALE_MS } from "@/lib/queryCache";
 
 export interface CleanupRecord {
   spender: Address;
@@ -13,7 +17,7 @@ export interface CleanupRecord {
   scoreAfter: bigint;
 }
 
-/** Max page size matches contract MAX_PAGE_LIMIT (v2). */
+/** Max page size matches contract MAX_PAGE_LIMIT. */
 export function useCleanupHistory(pageSize = 50) {
   const limit = Math.min(Math.max(1, pageSize), 50);
   const { address, chainId, isConnected } = useAccount();
@@ -26,20 +30,38 @@ export function useCleanupHistory(pageSize = 50) {
     abi: walletDoctorLogAbi,
     functionName: "historyLength",
     args: address ? [address] : undefined,
-    query: { enabled: Boolean(isConnected && address && configured && logAddress) },
+    query: {
+      enabled: Boolean(
+        isConnected && address && configured && logAddress,
+      ),
+      staleTime: HISTORY_STALE_MS,
+    },
   });
 
   const historyQuery = useQuery({
-    queryKey: ["cleanup-history", chainId, address, lengthQuery.data?.toString()],
+    queryKey: [
+      "cleanup-history",
+      chainId,
+      address,
+      lengthQuery.data?.toString() ?? "0",
+    ],
     enabled: Boolean(
-      isConnected && address && client && configured && logAddress && lengthQuery.data !== undefined,
+      isConnected &&
+        address &&
+        client &&
+        configured &&
+        logAddress &&
+        lengthQuery.data !== undefined,
     ),
+    staleTime: HISTORY_STALE_MS,
+    gcTime: HISTORY_GC_MS,
+    placeholderData: keepPreviousData,
+    refetchOnWindowFocus: false,
     queryFn: async (): Promise<CleanupRecord[]> => {
       if (!client || !address || !logAddress) return [];
       const total = Number(lengthQuery.data ?? 0n);
       if (total === 0) return [];
 
-      // latest first: fetch from end
       const start = Math.max(0, total - limit);
       const page = (await client.readContract({
         address: logAddress,
@@ -69,6 +91,9 @@ export function useOnchainScore() {
     abi: walletDoctorLogAbi,
     functionName: "currentScore",
     args: address ? [address] : undefined,
-    query: { enabled: Boolean(isConnected && address && configured && logAddress) },
+    query: {
+      enabled: Boolean(isConnected && address && configured && logAddress),
+      staleTime: HISTORY_STALE_MS,
+    },
   });
 }

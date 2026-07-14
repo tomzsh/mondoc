@@ -1,6 +1,11 @@
 "use client";
 
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect } from "react";
+import {
+  useQuery,
+  useQueryClient,
+  keepPreviousData,
+} from "@tanstack/react-query";
 import { useAccount, usePublicClient } from "wagmi";
 import { scanApprovals } from "@/lib/scanner/getApprovalEvents";
 import { getScanRange, type ScanRangeId } from "@/lib/scanner/scanRanges";
@@ -9,29 +14,42 @@ import {
   recommendedScanChunk,
   recommendedScanConcurrency,
 } from "@/lib/rpc";
-import { useUiStore } from "@/lib/store";
+import { approvalKey, useUiStore } from "@/lib/store";
+import {
+  APPROVALS_GC_MS,
+  APPROVALS_STALE_MS,
+  filterRevokedApprovals,
+} from "@/lib/queryCache";
 import type { ClassifiedApproval } from "@/lib/scanner/classifyRisk";
 
 export function useApprovals(enabled = true) {
   const { address, chainId, isConnected } = useAccount();
   const client = usePublicClient();
-  const queryClient = useQueryClient();
   const setScanProgress = useUiStore((s) => s.setScanProgress);
   const scanRangeId = useUiStore((s) => s.scanRangeId);
+  const revokedKeys = useUiStore((s) => s.revokedKeys);
+  const reconcileRevokedWithScan = useUiStore(
+    (s) => s.reconcileRevokedWithScan,
+  );
+  const resetSessionCache = useUiStore((s) => s.resetSessionCache);
 
-  return useQuery<ClassifiedApproval[]>({
+  // New wallet / chain → drop session tombstones & pending cleanups
+  useEffect(() => {
+    resetSessionCache();
+  }, [address, chainId, resetSessionCache]);
+
+  const query = useQuery<ClassifiedApproval[]>({
     queryKey: ["approvals", chainId, address, scanRangeId],
     enabled: Boolean(enabled && isConnected && address && client && chainId),
-    // Short stale time so Rescan after seed/revoke picks up new logs quickly
-    staleTime: 15_000,
-    gcTime: 10 * 60_000,
-    // Important: allow switching range while a long "all" scan is running
-    // TanStack Query will abort the previous query via `signal`
+    staleTime: APPROVALS_STALE_MS,
+    gcTime: APPROVALS_GC_MS,
+    placeholderData: keepPreviousData,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
     retry: false,
     queryFn: async ({ signal, queryKey }) => {
       if (!client || !address || !chainId) return [];
 
-      // Always read range from the query key (never a stale closure)
       const rangeId = queryKey[3] as ScanRangeId;
       const range = getScanRange(rangeId);
 
@@ -42,22 +60,45 @@ export function useApprovals(enabled = true) {
           minChunkSize: recommendedMinChunk(chainId),
           concurrency: recommendedScanConcurrency(),
           onProgress: (msg) => {
-            // Ignore progress from aborted / superseded scans
             if (signal.aborted) return;
-            const current = useUiStore.getState().scanRangeId;
-            if (current !== rangeId) return;
+            if (useUiStore.getState().scanRangeId !== rangeId) return;
             setScanProgress(msg);
           },
           signal,
         });
       } finally {
-        // Only clear progress if this scan is still the active range
-        if (!signal.aborted && useUiStore.getState().scanRangeId === rangeId) {
+        if (
+          !signal.aborted &&
+          useUiStore.getState().scanRangeId === rangeId
+        ) {
           setScanProgress(null);
         }
       }
     },
   });
+
+  // Filter tombstones at read time; reconcile after a successful fetch
+  const raw = query.data;
+  const filtered = filterRevokedApprovals(raw, revokedKeys);
+
+  useEffect(() => {
+    if (!query.isSuccess || !raw) return;
+    // Only reconcile when this is a settled network fetch (not pure cache)
+    if (query.isFetching) return;
+    const activeKeys = raw.map((a) => approvalKey(a.token, a.spender));
+    reconcileRevokedWithScan(activeKeys);
+  }, [
+    query.isSuccess,
+    query.isFetching,
+    query.dataUpdatedAt,
+    raw,
+    reconcileRevokedWithScan,
+  ]);
+
+  return {
+    ...query,
+    data: filtered,
+  };
 }
 
 /** Cancel in-flight approval scans (e.g. when user switches history range). */

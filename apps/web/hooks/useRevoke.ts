@@ -19,7 +19,12 @@ import type { ClassifiedApproval } from "@/lib/scanner/classifyRisk";
 import { calculateScore } from "@/lib/score/calculateScore";
 import { estimateContractGasBuffered } from "@/lib/gas";
 import { useQueryClient } from "@tanstack/react-query";
-import { approvalKey } from "@/lib/store";
+import { approvalKey, useUiStore } from "@/lib/store";
+import {
+  applyOptimisticRevokes,
+  invalidateLightReads,
+  queryKeyHas,
+} from "@/lib/queryCache";
 
 /** Onchain batch cap (WalletDoctorLog.MAX_BATCH). */
 const MAX_LOG_BATCH = 25;
@@ -40,23 +45,27 @@ export function useRevoke() {
   const [busy, setBusy] = useState(false);
 
   const receipt = useWaitForTransactionReceipt({ hash: pendingHash });
+  const addPendingCleanups = useUiStore((s) => s.addPendingCleanups);
+  const markRevoked = useUiStore((s) => s.markRevoked);
 
-  const invalidate = useCallback(async () => {
-    await queryClient.invalidateQueries({ queryKey: ["approvals"] });
-    await queryClient.invalidateQueries({ queryKey: ["cleanup-history"] });
-    await queryClient.invalidateQueries({ queryKey: ["badge-minted"] });
-  }, [queryClient]);
+  /**
+   * After revoke: optimistic list + tombstones + light onchain reads.
+   * No automatic full HyperSync rescan (user hits Rescan when needed).
+   */
+  const softRefreshAfterRevoke = useCallback(
+    (cleanupDelta: number) => {
+      if (cleanupDelta > 0) addPendingCleanups(cleanupDelta);
+      invalidateLightReads(queryClient);
+    },
+    [queryClient, addPendingCleanups],
+  );
 
   const optimisticallyRemove = useCallback(
     (items: ClassifiedApproval[]) => {
-      const drop = new Set(items.map((a) => approvalKey(a.token, a.spender)));
-      queryClient.setQueriesData<ClassifiedApproval[]>(
-        { queryKey: ["approvals"] },
-        (old) =>
-          old?.filter((a) => !drop.has(approvalKey(a.token, a.spender))) ?? old,
-      );
+      applyOptimisticRevokes(queryClient, items);
+      markRevoked(items.map((a) => approvalKey(a.token, a.spender)));
     },
-    [queryClient],
+    [queryClient, markRevoked],
   );
 
   const logCleanup = useCallback(
@@ -207,14 +216,17 @@ export function useRevoke() {
       toast.success("MonDoc badge minted", {
         description: "Soulbound NFT — mint is optional, not tied to each revoke.",
       });
-      await invalidate();
+      void queryClient.invalidateQueries({
+        predicate: (q) =>
+          queryKeyHas(q.queryKey, ["hasBadge", "tokenIdOf", "scoreAtMint"]),
+      });
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : "Mint failed";
       toast.error(msg.slice(0, 140));
     } finally {
       setBusy(false);
     }
-  }, [address, chainId, client, writeContractAsync, invalidate]);
+  }, [address, chainId, client, writeContractAsync, queryClient]);
 
   const sendRevokeTx = useCallback(
     async (approval: ClassifiedApproval) => {
@@ -298,11 +310,11 @@ export function useRevoke() {
           toast.error("Revoke succeeded, but onchain log failed");
         }
 
+        softRefreshAfterRevoke(1);
+
         if (newScore >= 80) {
           toast.message("Score ≥ 80 — mint badge from the Badge panel (optional)");
         }
-
-        await invalidate();
       } catch (e: unknown) {
         const msg = e instanceof Error ? e.message : "Revoke cancelled / failed";
         toast.error(msg.slice(0, 120), { id: "revoke" });
@@ -310,7 +322,13 @@ export function useRevoke() {
         setBusy(false);
       }
     },
-    [address, sendRevokeTx, optimisticallyRemove, logCleanup, invalidate],
+    [
+      address,
+      sendRevokeTx,
+      optimisticallyRemove,
+      logCleanup,
+      softRefreshAfterRevoke,
+    ],
   );
 
   /**
@@ -388,13 +406,13 @@ export function useRevoke() {
           });
         }
 
+        softRefreshAfterRevoke(done.length);
+
         if (newScore >= 80) {
           toast.message(
             "Score ≥ 80 — mint badge from the Badge panel when ready (not auto)",
           );
         }
-
-        await invalidate();
       } finally {
         setBusy(false);
       }
@@ -405,7 +423,7 @@ export function useRevoke() {
       sendRevokeTx,
       optimisticallyRemove,
       batchLogCleanup,
-      invalidate,
+      softRefreshAfterRevoke,
     ],
   );
 
