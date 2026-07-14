@@ -1,5 +1,6 @@
 "use client";
 
+import "@/lib/ssr-polyfills";
 import { useMemo, useState, type ReactNode } from "react";
 import { WagmiProvider } from "wagmi";
 import {

@@ -1,3 +1,4 @@
+import "@/lib/ssr-polyfills";
 import { connectorsForWallets } from "@rainbow-me/rainbowkit";
 import {
   injectedWallet,

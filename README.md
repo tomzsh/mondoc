@@ -159,6 +159,30 @@ Seed needs `PRIVATE_KEY` (testnet MON for gas) in `packages/contracts/.env`. Con
 
 ---
 
+## Deploy (Vercel)
+
+Monorepo: set **Root Directory** to `apps/web` in the Vercel project (or use the root `vercel.json` build command).
+
+**Environment variables** (Project → Settings → Environment Variables):
+
+| Name | Notes |
+|------|--------|
+| `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` | [cloud.walletconnect.com](https://cloud.walletconnect.com) |
+| `ENVIO_API_TOKEN` | Server-only; [envio.dev](https://envio.dev/app/api-tokens) |
+| `NEXT_PUBLIC_USE_HYPERSYNC` | `true` |
+| `NEXT_PUBLIC_LOG_ADDRESS_TESTNET` | Default: `0x433e9B7d88332207EFa8f98A463267bFd649F661` |
+| `NEXT_PUBLIC_MONAD_TESTNET_RPC` | Optional; Alchemy recommended |
+| `NEXT_PUBLIC_MONAD_MAINNET_RPC` | Optional; default public RPC |
+
+```bash
+# From monorepo root (after linking the project once)
+npx vercel --prod
+```
+
+Or connect the GitHub repo in the Vercel dashboard and deploy on push to `main`.
+
+---
+
 ## Out of scope
 
 - Chains other than Monad

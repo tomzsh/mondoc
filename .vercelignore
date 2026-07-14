@@ -1,0 +1,11 @@
+packages/contracts
+.agents
+**/.env
+**/.env.local
+**/node_modules
+**/.next
+**/cache
+**/out
+**/broadcast
+**/lib/forge-std
+**/lib/openzeppelin-contracts
