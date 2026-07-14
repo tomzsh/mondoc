@@ -32,6 +32,7 @@ export function useRevoke() {
   const invalidate = useCallback(async () => {
     await queryClient.invalidateQueries({ queryKey: ["approvals"] });
     await queryClient.invalidateQueries({ queryKey: ["cleanup-history"] });
+    await queryClient.invalidateQueries({ queryKey: ["badge-minted"] });
   }, [queryClient]);
 
   const logCleanup = useCallback(

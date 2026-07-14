@@ -33,8 +33,8 @@ export function ApprovalRow({
   return (
     <tr
       className={cn(
-        "border-b border-white/5 transition hover:bg-white/[0.03]",
-        approval.risk === "high" && "bg-red-500/[0.04]",
+        "border-b border-border transition hover:bg-accent-soft/30",
+        approval.risk === "high" && "bg-danger/[0.03]",
       )}
     >
       <td className="px-3 py-3">
@@ -42,26 +42,26 @@ export function ApprovalRow({
           type="checkbox"
           checked={selected}
           onChange={onToggle}
-          className="h-4 w-4 rounded border-white/20 bg-transparent accent-violet-500"
+          className="h-4 w-4 rounded border-border accent-[var(--accent)]"
           aria-label="Select approval"
         />
       </td>
       <td className="px-3 py-3">
-        <div className="font-medium text-white">{symbol}</div>
+        <div className="font-medium">{symbol}</div>
         <a
           href={explorerBase ? `${explorerBase}/address/${approval.token}` : undefined}
           target="_blank"
           rel="noreferrer"
-          className="font-mono text-[11px] text-zinc-500 hover:text-violet-300"
+          className="font-mono text-[11px] text-muted hover:text-accent"
         >
           {shortAddress(approval.token)}
         </a>
       </td>
       <td className="px-3 py-3">
-        <div className="text-sm text-zinc-200">
+        <div className="text-sm text-foreground">
           {spenderLabel || shortAddress(approval.spender)}
         </div>
-        <div className="font-mono text-[11px] text-zinc-500">
+        <div className="font-mono text-[11px] text-muted">
           {shortAddress(approval.spender)}
         </div>
       </td>
@@ -69,12 +69,12 @@ export function ApprovalRow({
         <span
           className={cn(
             "text-sm font-medium",
-            approval.isUnlimited ? "text-red-300" : "text-zinc-200",
+            approval.isUnlimited ? "text-danger" : "text-foreground",
           )}
         >
           {amount}
         </span>
-        <div className="text-[11px] uppercase tracking-wide text-zinc-500">
+        <div className="text-[11px] uppercase tracking-wide text-muted">
           {approval.kind}
         </div>
       </td>
@@ -86,7 +86,7 @@ export function ApprovalRow({
           type="button"
           onClick={onRevoke}
           disabled={revoking}
-          className="rounded-lg bg-white/10 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-red-500/80 disabled:opacity-50"
+          className="ui-btn-danger !min-h-8 !w-auto !px-3 !py-1.5 text-xs"
         >
           {revoking ? "…" : "Revoke"}
         </button>

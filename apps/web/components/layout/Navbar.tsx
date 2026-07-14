@@ -3,36 +3,35 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ConnectButton } from "@/components/wallet/ConnectButton";
+import { ThemeToggle } from "@/components/theme/ThemeToggle";
+import { AppLogo } from "@/components/brand/AppLogo";
 import { cn } from "@/lib/utils";
 
 const LINKS = [
   { href: "/", label: "Dashboard" },
   { href: "/scan", label: "Scan" },
   { href: "/history", label: "History" },
-  { href: "/tx-explainer", label: "TX Explainer" },
 ];
 
 export function Navbar() {
   const pathname = usePathname();
 
   return (
-    <header className="sticky top-0 z-40 border-b border-white/5 bg-[#0b0b12]/80 backdrop-blur-xl">
-      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4">
-        <div className="flex items-center gap-8">
-          <Link href="/" className="group flex items-center gap-2.5">
-            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-[#836EF9] to-[#4f46e5] text-lg shadow-lg shadow-violet-500/25">
-              🩺
-            </span>
-            <div className="leading-tight">
-              <div className="text-sm font-bold tracking-tight text-white group-hover:text-violet-200">
+    <header className="sticky top-0 z-30 border-b border-border bg-surface/80 backdrop-blur-md">
+      <div className="mx-auto flex h-12 max-w-6xl items-center justify-between gap-2 px-3 sm:h-14 sm:gap-3 sm:px-6">
+        <div className="flex min-w-0 items-center gap-4 sm:gap-6">
+          <Link href="/" className="flex min-w-0 items-center gap-2">
+            <AppLogo size={28} className="sm:hidden" />
+            <AppLogo size={32} className="hidden sm:block" />
+            <div className="min-w-0 leading-tight">
+              <div className="truncate text-xs font-semibold text-foreground sm:text-sm">
                 Wallet Doctor
               </div>
-              <div className="text-[10px] font-medium uppercase tracking-widest text-violet-300/70">
-                Monad
-              </div>
+              <div className="hidden text-[11px] text-muted sm:block">Monad</div>
             </div>
           </Link>
-          <nav className="hidden items-center gap-1 sm:flex">
+
+          <nav className="hidden items-center gap-1 md:flex">
             {LINKS.map((l) => {
               const active = pathname === l.href;
               return (
@@ -42,8 +41,8 @@ export function Navbar() {
                   className={cn(
                     "rounded-lg px-3 py-1.5 text-sm font-medium transition",
                     active
-                      ? "bg-white/10 text-white"
-                      : "text-zinc-400 hover:bg-white/5 hover:text-white",
+                      ? "bg-accent-soft text-accent"
+                      : "text-muted hover:bg-accent-soft/60 hover:text-foreground",
                   )}
                 >
                   {l.label}
@@ -52,9 +51,14 @@ export function Navbar() {
             })}
           </nav>
         </div>
-        <ConnectButton />
+
+        <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
+          <ThemeToggle />
+          <ConnectButton />
+        </div>
       </div>
-      <nav className="flex gap-1 overflow-x-auto border-t border-white/5 px-4 py-2 sm:hidden">
+
+      <nav className="flex gap-1 overflow-x-auto border-t border-border px-3 py-1.5 md:hidden">
         {LINKS.map((l) => {
           const active = pathname === l.href;
           return (
@@ -62,8 +66,10 @@ export function Navbar() {
               key={l.href}
               href={l.href}
               className={cn(
-                "whitespace-nowrap rounded-lg px-3 py-1 text-xs font-medium",
-                active ? "bg-white/10 text-white" : "text-zinc-400",
+                "flex-1 whitespace-nowrap rounded-md px-2 py-1.5 text-center text-[11px] font-medium",
+                active
+                  ? "bg-accent-soft text-accent"
+                  : "text-muted hover:bg-accent-soft/50",
               )}
             >
               {l.label}

@@ -17,7 +17,7 @@ packages/contracts/lib/
 packages/contracts/.env
 packages/contracts/.deployer-address
 
-# env secrets
+# env secrets (never commit keys / private keys)
 .env
 .env.*
 !.env.example
@@ -29,3 +29,5 @@ packages/contracts/.deployer-address
 .turbo
 dist
 coverage
+*.tsbuildinfo
+apps/web/tsconfig.tsbuildinfo

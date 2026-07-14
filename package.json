@@ -2,7 +2,7 @@
   "name": "monad-wallet-doctor",
   "private": true,
   "version": "0.1.0",
-  "description": "Cek kesehatan wallet Monad, cabut approval berbahaya, catat onchain.",
+  "description": "Check Monad wallet health, revoke risky approvals, log cleanups onchain, earn a soulbound badge.",
   "scripts": {
     "dev": "pnpm --filter web dev",
     "build": "pnpm --filter web build",
@@ -10,7 +10,8 @@
     "contracts:build": "cd packages/contracts && forge build",
     "contracts:test": "cd packages/contracts && forge test -vv",
     "contracts:deploy:testnet": "bash scripts/deploy-testnet.sh",
-    "deploy:testnet": "bash scripts/deploy-testnet.sh"
+    "deploy:testnet": "bash scripts/deploy-testnet.sh",
+    "seed:approvals": "bash scripts/seed-test-approvals.sh"
   },
   "packageManager": "pnpm@9.15.0",
   "engines": {

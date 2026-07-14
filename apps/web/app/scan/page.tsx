@@ -4,36 +4,48 @@ import { ChainGuard } from "@/components/wallet/ChainGuard";
 import { ApprovalTable } from "@/components/approval/ApprovalTable";
 import { HealthGauge } from "@/components/score/HealthGauge";
 import { useHealthScore } from "@/hooks/useHealthScore";
+import { useUiStore } from "@/lib/store";
+import { getScanRange } from "@/lib/scanner/scanRanges";
 
 export default function ScanPage() {
   const { score, approvals, approvalsLoading, approvalsError } = useHealthScore();
+  const scanRangeId = useUiStore((s) => s.scanRangeId);
+  const range = getScanRange(scanRangeId);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5 sm:space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-white">Approval Scanner</h1>
-        <p className="mt-1 text-sm text-zinc-400">
-          Fetch Approval / ApprovalForAll events, check active allowances, classify
-          risk, then revoke directly from your wallet.
+        <h1 className="page-title">Approval Scanner</h1>
+        <p className="page-desc">
+          Scans Approval / ApprovalForAll logs back through chain history, then checks
+          which allowances are still active. Use <strong>All history</strong> to
+          include very old approvals.
         </p>
       </div>
 
       <ChainGuard>
-        <div className="grid gap-6 lg:grid-cols-[200px_1fr]">
-          <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-4">
-            <HealthGauge score={approvalsLoading ? 0 : score} size={160} />
+        <div className="grid gap-4 sm:gap-6 lg:grid-cols-[200px_1fr]">
+          <div className="ui-card space-y-3 p-4">
+            <HealthGauge
+              score={approvalsLoading ? 0 : score}
+              size={140}
+              className="mx-auto max-w-[180px]"
+            />
+            <p className="text-center text-[11px] text-muted">
+              Scan: <span className="font-medium text-foreground">{range.label}</span>
+            </p>
           </div>
-          <div className="space-y-3">
+          <div className="min-w-0 space-y-3">
             {approvalsError && (
-              <div className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200">
-                Scan failed: {(approvalsError as Error).message?.slice(0, 200)}
-                <div className="mt-1 text-xs text-red-200/70">
-                  Public RPCs often rate-limit eth_getLogs. Set{" "}
-                  <code className="rounded bg-black/30 px-1">
-                    NEXT_PUBLIC_MONAD_TESTNET_RPC
-                  </code>{" "}
-                  to a paid provider, or reduce lookback blocks.
-                </div>
+              <div className="ui-card break-words border-danger/30 bg-danger/5 p-4 text-sm text-danger">
+                <p className="font-semibold">
+                  Scan failed: {(approvalsError as Error).message?.slice(0, 200)}
+                </p>
+                <p className="mt-1 text-xs text-muted">
+                  Public RPCs often rate-limit deep eth_getLogs. Try a shorter range
+                  (7d / 30d), or set a paid RPC in{" "}
+                  <code className="rounded bg-surface px-1">NEXT_PUBLIC_MONAD_*_RPC</code>.
+                </p>
               </div>
             )}
             <ApprovalTable approvals={approvals} />

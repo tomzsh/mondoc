@@ -47,9 +47,10 @@ export function scoreLabel(score: number): string {
   return "At risk";
 }
 
+/** Clean score colors */
 export function scoreColor(score: number): string {
-  if (score >= 80) return "#22c55e";
-  if (score >= 60) return "#eab308";
-  if (score >= 40) return "#f97316";
-  return "#ef4444";
+  if (score >= 80) return "#30A46C";
+  if (score >= 60) return "#6E54FF";
+  if (score >= 40) return "#F5A524";
+  return "#E5484D";
 }

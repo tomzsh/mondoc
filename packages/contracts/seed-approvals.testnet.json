@@ -1,0 +1,49 @@
+{
+  "chainId": 10143,
+  "wallet": "0x23947730B347A3d55e1eAc1d04d007dB29e818d9",
+  "tokens": {
+    "wdUSD": "0x47BAC252a5B8980D7b2C1E50C47Db308bB63c7BA",
+    "wdETH": "0xdAECD583Db3CF579a8c8600A52aAd1a09e7bEB87",
+    "wdNFT": "0x5Ff62c5074857c12b21f390A2B89aF0164Fb1a20"
+  },
+  "approvals": [
+    {
+      "token": "wdUSD",
+      "spender": "0xDeaDbeefdEAdbeefdEadbEEFdeadbeEFdEaDbeeF",
+      "amount": "unlimited",
+      "expectedRisk": "high"
+    },
+    {
+      "token": "wdUSD",
+      "spender": "0x3012E9049d05B4B5369D690114D5A5861EbB85cb",
+      "label": "Atlantis SwapRouter",
+      "amount": "unlimited",
+      "expectedRisk": "medium"
+    },
+    {
+      "token": "wdETH",
+      "spender": "0x3012E9049d05B4B5369D690114D5A5861EbB85cb",
+      "label": "Atlantis SwapRouter",
+      "amount": "unlimited",
+      "expectedRisk": "medium"
+    },
+    {
+      "token": "wdETH",
+      "spender": "0x1111111111111111111111111111111111111111",
+      "amount": "100e18",
+      "expectedRisk": "low"
+    },
+    {
+      "token": "wdNFT",
+      "operator": "0xb0B0000000000000000000000000000000000001",
+      "kind": "ApprovalForAll",
+      "expectedRisk": "high"
+    },
+    {
+      "token": "wdNFT",
+      "operator": "0x3012E9049d05B4B5369D690114D5A5861EbB85cb",
+      "kind": "ApprovalForAll",
+      "expectedRisk": "medium"
+    }
+  ]
+}

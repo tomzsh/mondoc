@@ -1,49 +1,83 @@
 import { getDefaultConfig } from "@rainbow-me/rainbowkit";
-import { defineChain } from "viem";
+import { http, defineChain, type Chain } from "viem";
+import {
+  getMainnetRpc,
+  getTestnetRpc,
+  MONAD_MAINNET_ID,
+  MONAD_TESTNET_ID,
+} from "@/lib/rpc";
 
-export const monadTestnet = defineChain({
-  id: 10143,
-  name: "Monad Testnet",
-  nativeCurrency: { name: "Monad", symbol: "MON", decimals: 18 },
-  rpcUrls: {
-    default: {
-      http: [
-        process.env.NEXT_PUBLIC_MONAD_TESTNET_RPC || "https://testnet-rpc.monad.xyz",
-      ],
-    },
-  },
-  blockExplorers: {
-    default: {
-      name: "Monad Explorer",
-      url: "https://testnet.monadexplorer.com",
-    },
-  },
-  testnet: true,
-});
+const monadIcon = {
+  iconUrl: "/monad-icon.svg",
+  iconBackground: "#6E54FF",
+};
 
-export const monadMainnet = defineChain({
-  id: 143,
-  name: "Monad Mainnet",
-  nativeCurrency: { name: "Monad", symbol: "MON", decimals: 18 },
-  rpcUrls: {
-    default: {
-      http: [process.env.NEXT_PUBLIC_MONAD_MAINNET_RPC || "https://rpc.monad.xyz"],
+export const monadTestnet = {
+  ...defineChain({
+    id: MONAD_TESTNET_ID,
+    name: "Monad Testnet",
+    nativeCurrency: { name: "Monad", symbol: "MON", decimals: 18 },
+    rpcUrls: {
+      default: { http: [getTestnetRpc()] },
     },
-  },
-  blockExplorers: {
-    default: { name: "MonadVision", url: "https://monadvision.com" },
-  },
-  testnet: false,
-});
+    blockExplorers: {
+      default: {
+        name: "Monad Explorer",
+        url: "https://testnet.monadexplorer.com",
+      },
+    },
+    testnet: true,
+  }),
+  ...monadIcon,
+} as Chain & { iconUrl: string; iconBackground: string };
 
+export const monadMainnet = {
+  ...defineChain({
+    id: MONAD_MAINNET_ID,
+    name: "Monad Mainnet",
+    nativeCurrency: { name: "Monad", symbol: "MON", decimals: 18 },
+    rpcUrls: {
+      default: { http: [getMainnetRpc()] },
+    },
+    blockExplorers: {
+      default: { name: "MonadVision", url: "https://monadvision.com" },
+    },
+    testnet: false,
+  }),
+  ...monadIcon,
+} as Chain & { iconUrl: string; iconBackground: string };
+
+/**
+ * WalletConnect Cloud project ID is required for the WalletConnect option
+ * in the RainbowKit modal. Get one free at https://cloud.walletconnect.com
+ *
+ * Injected wallets (MetaMask, Rabby, OKX browser extension) work without it.
+ */
 const projectId =
-  process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || "wallet-doctor-demo-project-id";
+  (typeof process !== "undefined" &&
+    process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID?.trim()) ||
+  "";
+
+const walletConnectProjectId =
+  projectId.length > 0 ? projectId : "00000000000000000000000000000000";
 
 export const wagmiConfig = getDefaultConfig({
   appName: "Monad Wallet Doctor",
-  projectId,
+  projectId: walletConnectProjectId,
   chains: [monadTestnet, monadMainnet],
   ssr: true,
+  transports: {
+    [monadTestnet.id]: http(getTestnetRpc(), {
+      batch: true,
+      retryCount: 2,
+      timeout: 30_000,
+    }),
+    [monadMainnet.id]: http(getMainnetRpc(), {
+      batch: true,
+      retryCount: 2,
+      timeout: 30_000,
+    }),
+  },
 });
 
 export function getExplorerTxUrl(chainId: number, hash: string): string {

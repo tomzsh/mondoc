@@ -13,16 +13,16 @@ export function ChainGuard({ children }: { children: ReactNode }) {
 
   if (!isConnected) {
     return (
-      <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-10 text-center">
-        <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-violet-500/15 text-2xl">
-          🩺
+      <div className="ui-card px-4 py-10 text-center sm:px-8 sm:py-12">
+        <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-accent-soft text-xl text-accent">
+          🔗
         </div>
-        <h2 className="text-xl font-semibold text-white">Connect your wallet</h2>
-        <p className="mt-2 text-sm text-zinc-400">
+        <h2 className="text-xl font-semibold tracking-tight">Connect your wallet</h2>
+        <p className="mx-auto mt-2 max-w-md text-sm text-muted">
           Connect to Monad Testnet or Mainnet to scan approvals and check your
           health score.
         </p>
-        <div className="mt-6 flex justify-center">
+        <div className="mx-auto mt-6 flex w-full max-w-xs justify-center">
           <ConnectButton />
         </div>
       </div>
@@ -31,17 +31,17 @@ export function ChainGuard({ children }: { children: ReactNode }) {
 
   if (chainId && !SUPPORTED_IDS.includes(chainId)) {
     return (
-      <div className="rounded-2xl border border-amber-500/30 bg-amber-500/5 p-10 text-center">
-        <h2 className="text-xl font-semibold text-amber-200">Unsupported network</h2>
-        <p className="mt-2 text-sm text-zinc-400">
+      <div className="ui-card border-warning/30 bg-warning/5 px-4 py-10 text-center sm:px-8">
+        <h2 className="text-xl font-semibold tracking-tight">Unsupported network</h2>
+        <p className="mx-auto mt-2 max-w-md text-sm text-muted">
           Wallet Doctor only runs on Monad. Switch network to continue.
         </p>
-        <div className="mt-6 flex flex-wrap justify-center gap-3">
+        <div className="mt-6 flex flex-col gap-2 sm:flex-row sm:justify-center">
           <button
             type="button"
             disabled={isPending}
             onClick={() => switchChain?.({ chainId: monadTestnet.id })}
-            className="rounded-xl bg-[#836EF9] px-4 py-2.5 text-sm font-medium text-white hover:bg-[#6f5ad4] disabled:opacity-50"
+            className="ui-btn"
           >
             Switch to Monad Testnet
           </button>
@@ -49,7 +49,7 @@ export function ChainGuard({ children }: { children: ReactNode }) {
             type="button"
             disabled={isPending}
             onClick={() => switchChain?.({ chainId: monadMainnet.id })}
-            className="rounded-xl border border-white/15 bg-white/5 px-4 py-2.5 text-sm font-medium text-white hover:bg-white/10 disabled:opacity-50"
+            className="ui-btn-secondary"
           >
             Switch to Monad Mainnet
           </button>

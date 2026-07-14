@@ -10,13 +10,15 @@ import { ScoreHistoryChart } from "@/components/score/ScoreHistoryChart";
 
 export default function HistoryPage() {
   return (
-    <div className="space-y-6">
+    <div className="space-y-5 sm:space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-white">Onchain Cleanup History</h1>
-        <p className="mt-1 text-sm text-zinc-400">
-          Every successful revoke can be recorded on{" "}
-          <code className="text-violet-300">WalletDoctorLog</code> — permanent and
-          verifiable by anyone.
+        <h1 className="page-title">Onchain Cleanup History</h1>
+        <p className="page-desc">
+          Successful revokes can be recorded on{" "}
+          <code className="rounded bg-accent-soft px-1.5 py-0.5 font-mono text-[12px] text-accent">
+            WalletDoctorLog
+          </code>{" "}
+          — permanent and verifiable by anyone.
         </p>
       </div>
       <ChainGuard>
@@ -34,16 +36,16 @@ function HistoryBody() {
 
   if (!configured) {
     return (
-      <div className="rounded-2xl border border-amber-500/30 bg-amber-500/5 p-8 text-sm text-amber-100">
+      <div className="ui-card border-warning/30 bg-warning/5 p-5 text-sm sm:p-6">
         <p className="font-semibold">Contract not configured</p>
-        <p className="mt-2 text-amber-100/80">
-          Deploy <code>WalletDoctorLog</code> with Foundry, then set{" "}
-          <code className="rounded bg-black/30 px-1">
+        <p className="mt-2 break-words text-muted">
+          Deploy WalletDoctorLog, then set{" "}
+          <code className="rounded bg-surface px-1 font-mono text-xs">
             NEXT_PUBLIC_LOG_ADDRESS_TESTNET
           </code>{" "}
-          (and badge) in <code>.env.local</code>.
+          in <code>.env.local</code>.
         </p>
-        <pre className="mt-4 overflow-x-auto rounded-xl bg-black/40 p-4 text-xs text-zinc-300">
+        <pre className="mt-4 overflow-x-auto rounded-xl border border-border bg-surface p-3 font-mono text-[11px] text-muted sm:text-xs">
 {`cd packages/contracts
 forge script script/Deploy.s.sol --rpc-url $MONAD_TESTNET_RPC_URL --broadcast`}
         </pre>
@@ -52,20 +54,20 @@ forge script script/Deploy.s.sol --rpc-url $MONAD_TESTNET_RPC_URL --broadcast`}
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-white/10 bg-white/[0.02] px-5 py-4">
+    <div className="space-y-4 sm:space-y-6">
+      <div className="ui-card flex flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
         <div>
-          <div className="text-xs uppercase tracking-wider text-zinc-500">
+          <div className="text-xs font-medium uppercase tracking-wide text-muted">
             Total cleanups
           </div>
-          <div className="text-2xl font-bold text-white">{total}</div>
+          <div className="text-2xl font-semibold tabular-nums sm:text-3xl">{total}</div>
         </div>
         {logAddr && chainId && (
           <a
             href={getExplorerAddressUrl(chainId, logAddr)}
             target="_blank"
             rel="noreferrer"
-            className="text-sm text-violet-300 hover:underline"
+            className="ui-btn-secondary !min-h-9 !w-full text-xs sm:!w-auto"
           >
             Log contract {shortAddress(logAddr)} →
           </a>
@@ -74,61 +76,104 @@ forge script script/Deploy.s.sol --rpc-url $MONAD_TESTNET_RPC_URL --broadcast`}
 
       <ScoreHistoryChart history={data ?? []} />
 
-      <div className="overflow-hidden rounded-2xl border border-white/10">
+      <div className="ui-table-wrap">
         {isLoading ? (
-          <div className="p-10 text-center text-sm text-zinc-500">Loading history…</div>
+          <div className="p-10 text-center text-sm text-muted">Loading history…</div>
         ) : !data?.length ? (
-          <div className="p-10 text-center text-sm text-zinc-500">
-            No events yet. Revoke an approval on the Scan page to start logging.
+          <div className="p-10 text-center text-sm text-muted">
+            No events yet. Revoke an approval on Scan to start logging.
           </div>
         ) : (
-          <table className="w-full text-left text-sm">
-            <thead>
-              <tr className="border-b border-white/5 text-[11px] uppercase tracking-wider text-zinc-500">
-                <th className="px-4 py-3 font-medium">Time</th>
-                <th className="px-4 py-3 font-medium">Token</th>
-                <th className="px-4 py-3 font-medium">Spender</th>
-                <th className="px-4 py-3 font-medium">Score after</th>
-              </tr>
-            </thead>
-            <tbody>
+          <>
+            <div className="space-y-3 p-3 sm:hidden">
               {data.map((row, i) => {
                 const ts = new Date(Number(row.timestamp) * 1000);
                 return (
-                  <tr key={i} className="border-b border-white/5 hover:bg-white/[0.03]">
-                    <td className="px-4 py-3 text-zinc-300">
-                      {ts.toLocaleString("en-US")}
-                    </td>
-                    <td className="px-4 py-3 font-mono text-xs text-zinc-400">
-                      {chainId ? (
-                        <a
-                          href={getExplorerAddressUrl(chainId, row.token)}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="hover:text-violet-300"
-                        >
-                          {shortAddress(row.token)}
-                        </a>
-                      ) : (
-                        shortAddress(row.token)
-                      )}
-                    </td>
-                    <td className="px-4 py-3 font-mono text-xs text-zinc-400">
-                      {shortAddress(row.spender)}
-                    </td>
-                    <td className="px-4 py-3 font-semibold text-emerald-300">
-                      {Number(row.scoreAfter)}
-                    </td>
-                  </tr>
+                  <article key={i} className="rounded-xl border border-border p-3.5">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="text-xs text-muted">{ts.toLocaleString("en-US")}</div>
+                      <div className="text-lg font-semibold tabular-nums text-success">
+                        {Number(row.scoreAfter)}
+                      </div>
+                    </div>
+                    <div className="mt-2 grid grid-cols-2 gap-2 text-xs">
+                      <div className="min-w-0">
+                        <div className="text-[10px] uppercase text-muted">Token</div>
+                        {chainId ? (
+                          <a
+                            href={getExplorerAddressUrl(chainId, row.token)}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="block truncate font-mono hover:text-accent"
+                          >
+                            {shortAddress(row.token)}
+                          </a>
+                        ) : (
+                          <span className="font-mono">{shortAddress(row.token)}</span>
+                        )}
+                      </div>
+                      <div className="min-w-0">
+                        <div className="text-[10px] uppercase text-muted">Spender</div>
+                        <span className="block truncate font-mono">
+                          {shortAddress(row.spender)}
+                        </span>
+                      </div>
+                    </div>
+                  </article>
                 );
               })}
-            </tbody>
-          </table>
+            </div>
+
+            <div className="hidden scroll-x sm:block">
+              <table className="w-full min-w-[520px] text-left text-sm">
+                <thead>
+                  <tr className="border-b border-border text-[11px] font-medium uppercase tracking-wide text-muted">
+                    <th className="px-4 py-3">Time</th>
+                    <th className="px-4 py-3">Token</th>
+                    <th className="px-4 py-3">Spender</th>
+                    <th className="px-4 py-3">Score after</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {data.map((row, i) => {
+                    const ts = new Date(Number(row.timestamp) * 1000);
+                    return (
+                      <tr key={i} className="border-b border-border hover:bg-accent-soft/30">
+                        <td className="whitespace-nowrap px-4 py-3 text-muted">
+                          {ts.toLocaleString("en-US")}
+                        </td>
+                        <td className="px-4 py-3 font-mono text-xs text-muted">
+                          {chainId ? (
+                            <a
+                              href={getExplorerAddressUrl(chainId, row.token)}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="hover:text-accent"
+                            >
+                              {shortAddress(row.token)}
+                            </a>
+                          ) : (
+                            shortAddress(row.token)
+                          )}
+                        </td>
+                        <td className="px-4 py-3 font-mono text-xs text-muted">
+                          {shortAddress(row.spender)}
+                        </td>
+                        <td className="px-4 py-3 font-semibold tabular-nums text-success">
+                          {Number(row.scoreAfter)}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </>
         )}
       </div>
 
       {address && chainId === monadMainnet.id && (
-        <p className="text-xs text-zinc-600">Showing history for {shortAddress(address)}</p>
+        <p className="text-xs text-muted">Showing history for {shortAddress(address)}</p>
       )}
     </div>
   );

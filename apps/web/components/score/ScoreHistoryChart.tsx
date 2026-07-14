@@ -9,7 +9,7 @@ interface Props {
 export function ScoreHistoryChart({ history }: Props) {
   if (!history.length) {
     return (
-      <div className="flex h-40 items-center justify-center rounded-xl border border-dashed border-white/10 text-sm text-zinc-500">
+      <div className="ui-card flex min-h-[8rem] items-center justify-center border-dashed px-4 py-8 text-center text-sm text-muted sm:h-40">
         No onchain score history yet
       </div>
     );
@@ -21,7 +21,7 @@ export function ScoreHistoryChart({ history }: Props) {
   const min = 0;
   const w = 320;
   const h = 120;
-  const pad = 8;
+  const pad = 12;
 
   const coords = scores.map((s, i) => {
     const x = pad + (i / Math.max(scores.length - 1, 1)) * (w - pad * 2);
@@ -34,24 +34,32 @@ export function ScoreHistoryChart({ history }: Props) {
     .join(" ");
 
   return (
-    <div className="rounded-xl border border-white/10 bg-white/[0.02] p-4">
-      <div className="mb-2 text-xs font-medium uppercase tracking-wider text-zinc-500">
+    <div className="ui-card p-4 sm:p-5">
+      <div className="mb-2 text-xs font-medium uppercase tracking-wide text-muted">
         Score after cleanup
       </div>
-      <svg viewBox={`0 0 ${w} ${h}`} className="h-32 w-full">
+      <svg viewBox={`0 0 ${w} ${h}`} className="h-28 w-full sm:h-32" preserveAspectRatio="none">
         <path
           d={path}
           fill="none"
-          stroke="#836EF9"
+          stroke="#6E54FF"
           strokeWidth="2.5"
           strokeLinejoin="round"
           strokeLinecap="round"
         />
         {coords.map((c, i) => (
-          <circle key={i} cx={c.x} cy={c.y} r="3.5" fill="#a78bfa" />
+          <circle
+            key={i}
+            cx={c.x}
+            cy={c.y}
+            r="3.5"
+            fill="#6E54FF"
+            stroke="var(--surface)"
+            strokeWidth="2"
+          />
         ))}
       </svg>
-      <div className="mt-1 flex justify-between text-[10px] text-zinc-500">
+      <div className="mt-1 flex justify-between text-[11px] text-muted">
         <span>Start</span>
         <span>Latest: {scores[scores.length - 1]}</span>
       </div>
